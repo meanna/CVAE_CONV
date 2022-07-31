@@ -58,6 +58,7 @@ def batch_generator(batch_dim, test_labels, model_name):
     """
     Batch generator using the given list of labels.
     """
+    batch_labels = []
     while True:
         batch_imgs = []
         labels = []
@@ -115,7 +116,7 @@ def convert_batch_to_image_grid(image_batch, dim=64):
     return reshaped
 
 
-def imshow_grid(imgs, model_name, shape=[2, 5], name='default', save=False):
+def imshow_grid(imgs, model_name, shape=(2, 5), name='default', save=False):
     """Plot images in a grid of a given shape."""
     fig = plt.figure(1)
     grid = ImageGrid(fig, 111, nrows_ncols=shape, axes_pad=0.05)

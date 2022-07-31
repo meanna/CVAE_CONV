@@ -6,13 +6,11 @@ import tensorflow as tf
 from celeba import CelebADataset
 from ConvolutionalCondVAE import ConvCVAE, Decoder, Encoder
 import time
-from utils import train_step
 import numpy as np
-from image_generation_utils import interpolation
 from matplotlib import pyplot as plt
-from image_generation_utils import attr_manipulation
-from utils import batch_generator, convert_batch_to_image_grid, read_data
-from image_generation_utils import image_generation, image_reconstruction
+from image_generation_utils import attr_manipulation, image_generation
+from utils import batch_generator, convert_batch_to_image_grid, read_data, train_step
+from image_reconstruction_utils import image_reconstruction, interpolation
 from datetime import datetime
 
 # Training configuration
@@ -20,7 +18,8 @@ from datetime import datetime
 pretrained_model = "2022-07-30_14.36.29"  # set to None if you want to train a new model
 # full dataset = "./embeddings.csv"
 embedding_path = "embeddings_128.csv"
-n_epochs = 6
+n_epochs = 3
+encoder_concat_input_and_condition = True
 
 learning_rate = 0.001
 train_size = 0.5  # 0.01
@@ -44,7 +43,7 @@ latent_dim = 128
 beta = 0.65
 
 # Model
-encoder = Encoder(latent_dim)
+encoder = Encoder(latent_dim, concat_input_and_condition=encoder_concat_input_and_condition)
 decoder = Decoder()
 model = ConvCVAE(
     encoder,
@@ -93,21 +92,24 @@ if not False:
     else:
         print("No checkpoint!")
 
-
 # ----------------------------------------------------------------------
-def plot_recon_images():
-    # Read test_data.pickle
-    test_data = read_data("./test_data")
+# Read test_data.pickle
+test_data = read_data("./test_data")
+# Build a batch of test images
+batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv')
+images, labels = next(batch_gen)
 
+
+def plot_recon_images():
     # Image reconstruction
-    image_reconstruction(model, test_data, save_path=result_folder)
+    print("Plot reconstructed images ...")
+    image_reconstruction(model, images, labels, save_path=result_folder)
 
 
 # ----------------------------------------------------------------------
 def generate_image_given_text(target_attr=None):
     """E.g. target_attr = a man with bushy eyebrows"""
-    # Read test_data.pickle
-    test_data = read_data("./test_data")
+    print("Plot images given a text prompt ...")
     image_generation(model, test_data, target_attr=target_attr, save_path=result_folder)
 
 
@@ -143,7 +145,6 @@ def train():
             train_latent_losses.append(lat_loss)
 
             if step_index + 1 == n_batches:
-                # pass
                 break
 
         loss.append(np.mean(train_losses, 0))
@@ -161,20 +162,21 @@ def train():
             # checkpoint.save(save_prefix + "_" + str(epoch + 1))
             checkpoint.save(save_prefix)
             print("Model saved:", save_prefix)
-            with open(os.path.join(result_folder, "params.txt"), "w") as f:
-                f.write(f"n_epochs = {epoch}\n")
-                f.write(f"learning_rate = {learning_rate}\n")
-                f.write(f"train_size = {train_size}\n")
-                f.write(f"batch_size = {batch_size} \n")
-                f.write(f"dataset.train_size = {dataset.train_size}\n")
-                f.write(f"label_dim = {label_dim}\n")
-                f.write(f"image_dim = {image_dim}\n")
-                f.write(f"latent_dim = {latent_dim}\n")
-                f.write(f"beta = {beta}\n")
-                # add processing time
-                f.write(f"model checkpoint = {save_prefix}\n")
-                print("Execution time: %0.3f \t Epoch %i: loss %0.4f | reconstr loss %0.4f | latent loss %0.4f"
-                      % (exec_time, epoch, loss[epoch], reconstruct_loss[epoch], latent_loss[epoch]), file=f)
+        with open(os.path.join(result_folder, "params.txt"), "w") as f:
+            f.write(f"n_epochs = {epoch}\n")
+            f.write(f"encoder_concat_input_and_condition = {encoder_concat_input_and_condition}\n")
+            f.write(f"learning_rate = {learning_rate}\n")
+            f.write(f"train_size = {train_size}\n")
+            f.write(f"batch_size = {batch_size} \n")
+            f.write(f"dataset.train_size = {dataset.train_size}\n")
+            f.write(f"label_dim = {label_dim}\n")
+            f.write(f"image_dim = {image_dim}\n")
+            f.write(f"latent_dim = {latent_dim}\n")
+            f.write(f"beta = {beta}\n")
+            # add processing time
+            f.write(f"model checkpoint = {save_prefix}\n")
+            print("Execution time: %0.3f \t Epoch %i: loss %0.4f | reconstr loss %0.4f | latent loss %0.4f"
+                  % (exec_time, epoch, loss[epoch], reconstruct_loss[epoch], latent_loss[epoch]), file=f)
 
     # Save the final model
     checkpoint.save(save_prefix)
@@ -185,8 +187,10 @@ def train():
 
 
 def plot_losses():
+    print("Plot losses ...")
     f = plt.figure()
     plt.plot(reconstruct_loss, 'g', marker='o')
+    plt.title("reconstruct_loss", fontsize=20, pad=10)
     plt.grid()
     plt.show()
     save_path = os.path.join(result_folder, "reconstruct_loss.png")
@@ -195,6 +199,7 @@ def plot_losses():
     f = plt.figure()
     plt.plot(latent_loss, 'b', marker='o')
     plt.grid()
+    plt.title("latent_loss", fontsize=20, pad=10)
     plt.show()
     save_path = os.path.join(result_folder, "latent_loss.png")
     plt.savefig(save_path, dpi=f.dpi)
@@ -202,90 +207,92 @@ def plot_losses():
     f = plt.figure()
     plt.plot(loss, 'r', marker='o')
     plt.grid()
+    plt.title("loss", fontsize=20, pad=10)
     plt.show()
     save_path = os.path.join(result_folder, "loss.png")
     plt.savefig(save_path, dpi=f.dpi)
+    plt.close()
 
 
 # ----------------------------------------------------------------------
 
-def plot_image_with_attr():
-    # Read test_data.pickle
-    test_data = read_data("./test_data")
-    # Build a batch of test images
-    batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv')
-    images, labels = next(batch_gen)
-    print("labels from batch generator", labels)
 
-    # Dictionary with desired attributes with their value
-    target_attr = {15: 1}
+def plot_image_with_attr(target_attr=None, image_embed_factor=1.0, new_attr_factor=1.0):
+    print("plot_image_with_attr ...")
 
     # Get reconstructed and modified images
-    reconstructed_images, modified_images = attr_manipulation(images, labels, target_attr, model)
+    reconstructed_images, modified_images = attr_manipulation(images, labels, target_attr, model,
+                                                              image_embed_factor=image_embed_factor,
+                                                              new_attr_factor=new_attr_factor)
 
     # ----------------------------------------------------------------------
 
-    f = plt.figure(figsize=(64, 40))
+    f = plt.figure(figsize=(64, 32))  # figsize=(64, 32)
     ax = f.add_subplot(1, 2, 1)
     ax.imshow(convert_batch_to_image_grid(reconstructed_images),
               interpolation='nearest')
     plt.axis('off')
-    save_path = os.path.join(result_folder, "reconstructed_images.png")
-    plt.savefig(save_path, dpi=200)
 
     ax = f.add_subplot(1, 2, 2)
     ax.imshow(convert_batch_to_image_grid(modified_images),
               interpolation='nearest')
     plt.axis('off')
+    str_target_attr = str(target_attr).replace(' ', '_')
+    str_target_attr_factors = f"{str_target_attr}_{image_embed_factor}_{new_attr_factor}"
+    file_name = f"modified_images_{str_target_attr_factors}.png"
+    save_path = os.path.join(result_folder, file_name)
+    plt.title(str_target_attr_factors, fontsize=60, pad=20)
     plt.show()
-    save_path = os.path.join(result_folder, "modified_images.png")
-    plt.savefig(save_path, dpi=200)
+    # plt.tight_layout()
+    print(f"image is saved as {save_path}")
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.close()
 
 
 # ----------------------------------------------------------------------
 def plot_ori_images():
-    test_data = read_data("./test_data")
-    # Build a batch of test images
-    batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv')
-    imgs, labels = next(batch_gen)
-
     # Plot original Images
     f = plt.figure(figsize=(32, 40))
     ax = f.add_subplot(1, 2, 1)
-    ax.imshow(convert_batch_to_image_grid(imgs),
+    ax.imshow(convert_batch_to_image_grid(images),
               interpolation='nearest')
     plt.axis('off')
+    plt.title('original images', fontsize=30, pad=20)
     save_path = os.path.join(result_folder, "ori_images.png")
-    plt.savefig(save_path, dpi=200)
+    print(f"image is saved as {save_path}")
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.close()
 
 
 # ----------------------------------------------------------------------
 def plot_interpolation():
-    test_data = read_data("./test_data")
-    # Build a batch of test images
-    batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv')
-    imgs, labels = next(batch_gen)
+    print("Plot Interpolation ...")
     # Target images to interpolate
     target_images = [2, 12, 14, 22, 28]
 
     # Interpolation
-    images = interpolation(target_images, imgs, labels, model)
+    interpolated_images = interpolation(target_images, images, labels, model)
 
     # Plot resulting images
     f = plt.figure(figsize=(32, 40))
     ax = f.add_subplot(1, 2, 1)
-    ax.imshow(convert_batch_to_image_grid(np.asarray(images)))
+    ax.imshow(convert_batch_to_image_grid(np.asarray(interpolated_images)))
     plt.axis('off')
+    plt.title('interpolated images', fontsize=30, pad=20)
     save_path = os.path.join(result_folder, "interpolation.png")
-    plt.savefig(save_path, dpi=200)
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.close()
 
 
 # ----------------------------------------------------------------------
 
 if __name__ == "__main__":
     # train()
-    generate_image_given_text(target_attr="wear reading glasses and smile")
+    plot_image_with_attr(target_attr="angry", image_embed_factor=0.6, new_attr_factor=0.8)
+    generate_image_given_text(target_attr="a person with blue hair")
     plot_recon_images()
+    # plot_interpolation()
+    # plot_ori_images()
 
     print('model name = ', checkpoint_name)
     print('result folder = ', result_folder)

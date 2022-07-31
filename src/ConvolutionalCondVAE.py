@@ -10,10 +10,10 @@ from tensorflow.keras.layers import BatchNormalization, Conv2D, Conv2DTranspose
 
 class Encoder(tf.keras.Model):
 
-    def __init__(self, latent_dim):
+    def __init__(self, latent_dim, concat_input_and_condition=True):
 
         super(Encoder, self).__init__()
-
+        self.use_cond_input = concat_input_and_condition
         self.enc_block_1 = Conv2D(
             filters=32,
             kernel_size=3,
@@ -51,15 +51,14 @@ class Encoder(tf.keras.Model):
         # print("conditional_input", conditional_input.shape)
         # conditional_input = tf.random.uniform(shape=[32, 64, 64, 43])
 
-        use_cond_input = True
-        if use_cond_input:
+        if self.use_cond_input:
             x = conditional_input
         else:
             x = tf.keras.layers.InputLayer(input_shape=(input_img.shape))(input_img)
             cond = input_label  # tf.random.uniform(shape=[32, 512])
             cond = tf.reshape(cond, [input_img.shape[0], 4, 4, -1])  ## not sure if it is correct
 
-        #print("x", x.shape)
+        # print("x", x.shape)
         x = self.enc_block_1(x)
         x = BatchNormalization(trainable=is_train)(x)
         x = tf.nn.leaky_relu(x)
@@ -77,7 +76,7 @@ class Encoder(tf.keras.Model):
         x = tf.nn.leaky_relu(x)
         # x = (32, 4, 4, 256)
 
-        if not use_cond_input:
+        if not self.use_cond_input:
             x = tf.concat([x, cond], axis=3)
             # print("x", x.shape) #x (32, 4, 4, 288)
 
@@ -202,10 +201,10 @@ class ConvCVAE(tf.keras.Model):
         z_mean, z_log_var = tf.split(
             self.encoder(input_img, input_label, conditional_input, self.latent_dim, is_train), num_or_size_splits=2,
             axis=1)
-        #print("....done encoding")
+        # print("....done encoding")
         z_cond = self.reparametrization(z_mean, z_log_var, input_label)
         logits = self.decoder(z_cond, is_train)
-        #print("....done decoding")
+        # print("....done decoding")
 
         recon_img = tf.nn.sigmoid(logits)
 
