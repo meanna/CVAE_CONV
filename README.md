@@ -38,8 +38,9 @@ want to create embeddings for. If you want to do it for the whole dataset set `s
 ## download model checkpoint
 
 - model name = "2022-07-30_14.36.29"
-- gdown https://drive.google.com/drive/folders/1YqXtAGVd2smI_VY8Vil0MOt_xyoqsboC?usp=sharing
-- put it in "checkpoints" folder
+- `gdown https://drive.google.com/uc?id=1P1z0Jl_wND6mqR73QSZ59bDxPO7IEX1P`
+- `unzip -q 2022-07-30_14.36.29.zip -d ./`
+- put it in "checkpoints" folder, `mv 2022-07-30_14.36.29 checkpoints/`
 
 
 ## train the model
