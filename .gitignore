@@ -1,7 +1,7 @@
 
 # repo
 src/results/
-src/checkpoints/
+src/checkpoints/*
 
 # Ignore Mac system files
 .DS_store

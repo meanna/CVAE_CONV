@@ -284,8 +284,8 @@ def plot_interpolation():
 
 if __name__ == "__main__":
     # train()
-    # generate_image_given_text(target_attr="wear reading glasses and smile")
-    # plot_recon_images()
+    generate_image_given_text(target_attr="wear reading glasses and smile")
+    plot_recon_images()
 
     print('model name = ', checkpoint_name)
     print('result folder = ', result_folder)

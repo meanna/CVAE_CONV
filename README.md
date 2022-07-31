@@ -22,8 +22,9 @@ based on https://github.com/EleMisi/ConditionalVAE
 
 ## download the dataset
 - add `kaggle.json` ([how to get this file](https://www.kaggle.com/general/156610)) to src
-- run `bash src/install.sh`
-- run `python src/dataloader.py`
+- cd to src
+- run `bash install.sh`
+- run `python dataloader.py`
 - the data will be stored in `input` folder
 
 ## generate CLIP embeddings for the dataset
@@ -33,6 +34,12 @@ want to create embeddings for. If you want to do it for the whole dataset set `s
 - You will get `embeddings.csv` (1.7 GB)
 - A small version is already included in the repo
   - `src/embeddings_128.csv`
+
+## download model checkpoint
+
+- gdown https://drive.google.com/drive/folders/1YqXtAGVd2smI_VY8Vil0MOt_xyoqsboC?usp=sharing
+- put it in "checkpoints" folder
+
 
 ## train the model
 - go to `src/train.py`
