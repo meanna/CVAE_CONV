@@ -37,6 +37,7 @@ want to create embeddings for. If you want to do it for the whole dataset set `s
 
 ## download model checkpoint
 
+- model name = "2022-07-30_14.36.29"
 - gdown https://drive.google.com/drive/folders/1YqXtAGVd2smI_VY8Vil0MOt_xyoqsboC?usp=sharing
 - put it in "checkpoints" folder
 
