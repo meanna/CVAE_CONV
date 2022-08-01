@@ -23,7 +23,7 @@ based on https://github.com/EleMisi/ConditionalVAE
 ## download the dataset
 - add `kaggle.json` ([how to get this file](https://www.kaggle.com/general/156610)) to src
 - cd to src
-- run `bash install.sh`
+- run `bash setup_kaggle.sh`
 - run `python dataloader.py`
 - the data will be stored in `input` folder
 
