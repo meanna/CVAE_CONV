@@ -50,9 +50,12 @@ want to create embeddings for. If you want to do it for the whole dataset set `s
 - set `embedding_path = "embeddings_128.csv"`, (or full dataset = "embeddings.csv")
 - go to the main function below, choose the functions you want to run (you can run all)
   - `train()`
-    - the model will be saved under "checkpoints"
+    - the model will be saved under "checkpoints" folder
   - `generate_image_given_text(target_attr="wear reading glasses and smile")`
   - `plot_recon_images()`
+  - `plot_image_with_attr(target_attr="angry", image_embed_factor=0.6, new_attr_factor=0.8)`
+  - `plot_interpolation()`
+  - `plot_ori_images()`
 
 
 ## etc
