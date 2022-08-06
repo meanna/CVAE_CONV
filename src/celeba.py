@@ -120,7 +120,7 @@ class CelebADataset(Sequence):
         for i in imgs_id:
             # ../../datasets/resized_celebA2/celebA/
             # './input/CelebA/img_align_celeba/img_align_celeba/'
-            image_path = '../../datasets/resized_celebA2/celebA/' + i
+            image_path = './input/CelebA/img_align_celeba/img_align_celeba/' + i
             imgs.append(self.preprocess_image(image_path))
 
         return imgs
