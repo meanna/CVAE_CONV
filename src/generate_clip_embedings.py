@@ -63,7 +63,7 @@ def create_clip_embeddings(size=None):
     if size:
         out_file = "embeddings_" + str(size) + ".csv"
     else:
-        out_file = "embeddings"
+        out_file = "embeddings" + ".csv"
     new_df.to_csv(out_file)
     print("out_file", out_file)
 
@@ -78,6 +78,6 @@ def load_embeddings():
 
 
 if __name__ == "__main__":
-    create_clip_embeddings(size=128)
+    create_clip_embeddings(size=15)
     # load_embeddings()
 
