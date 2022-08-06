@@ -12,7 +12,7 @@ from utils import batch_generator, convert_batch_to_image_grid
 #########################
 
 
-def image_reconstruction(model, images, labels, save_path=None):
+def image_reconstruction(model, images, labels, epoch=None, save_path=None):
     """
     Reconstructs and plots a batch of test images.
     """
@@ -30,7 +30,10 @@ def image_reconstruction(model, images, labels, save_path=None):
     plt.title("reconstructed images", fontsize=60, pad=20)
 
     if save_path:
-        plt.savefig(os.path.join(save_path, "reconstruction.png"), dpi=300, bbox_inches='tight')
+        file_name = "reconstruction.png"
+        if epoch:
+            file_name = f"reconstruction_{epoch}.png"
+        plt.savefig(os.path.join(save_path, file_name), dpi=300, bbox_inches='tight')
 
     plt.show()
     plt.clf()

@@ -1,5 +1,6 @@
 
 # repo
+src/not_used/*
 src/results/
 src/checkpoints/*
 

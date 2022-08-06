@@ -26,6 +26,8 @@ based on https://github.com/EleMisi/ConditionalVAE
 - run `bash setup_kaggle.sh`
 - run `python dataloader.py`
 - the data will be stored in `input` folder
+- if your data is in another folder set the path at celeba.get_images
+- if you use resized images, adjust celeba.preprocess_image because it will crop and resize the image again. 
 
 ## generate CLIP embeddings for the dataset
 
@@ -45,12 +47,13 @@ want to create embeddings for. If you want to do it for the whole dataset set `s
 
 ## train the model
 - go to `src/train.py`
-- set `n_epochs`
+- set `n_epochs = [number]`
+- set `save_model_every = [number]`
 - set `pretrained_model = "2022-07-30_14.36.29"`, set to `None` if you want to train a new model
 - set `embedding_path = "embeddings_128.csv"`, (or full dataset = "embeddings.csv")
+- set `run_train = True`
+  - the model will be saved in `checkpoints` folder
 - go to the main function below, choose the functions you want to run (you can run all)
-  - `train()`
-    - the model will be saved under "checkpoints" folder
   - `generate_image_given_text(target_attr="wear reading glasses and smile")`
   - `plot_recon_images()`
   - `plot_image_with_attr(target_attr="angry", image_embed_factor=0.6, new_attr_factor=0.8)`

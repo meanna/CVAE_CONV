@@ -60,22 +60,32 @@ class Encoder(tf.keras.Model):
             cond = input_label  # tf.random.uniform(shape=[32, 512])
             cond = tf.reshape(cond, [input_img.shape[0], 4, 4, -1])
 
+        multi_att = tf.keras.layers.MultiHeadAttention(num_heads=2, key_dim=2, attention_axes=(2, 3))
+        x = multi_att(x,x)
+        #print("x",x.shape) # (32, 64, 64, 3)
+
+
         # print("x", x.shape)
         x = self.enc_block_1(x)
+        multi_att = tf.keras.layers.MultiHeadAttention(num_heads=12, key_dim=16, attention_axes=(1, 2))
+        x = multi_att(x, x)
         x = BatchNormalization(trainable=is_train)(x)
         x = tf.nn.leaky_relu(x)
+
         # Encoder block 2
         x = self.enc_block_2(x)
         x = BatchNormalization(trainable=is_train)(x)
         x = tf.nn.leaky_relu(x)
+
         # Encoder block 3
         x = self.enc_block_3(x)
-
         x = BatchNormalization(trainable=is_train)(x)
         x = tf.nn.leaky_relu(x)
+
         # Encoder block 4
         x = self.enc_block_4(x)
-
+        multi_att = tf.keras.layers.MultiHeadAttention(num_heads=12, key_dim=16, attention_axes=(1, 2))
+        x = multi_att(x, x)
         x = BatchNormalization(trainable=is_train)(x)
         x = tf.nn.leaky_relu(x)
         # x = (32, 4, 4, 256)

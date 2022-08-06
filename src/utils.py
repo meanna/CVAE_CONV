@@ -54,11 +54,31 @@ def decode(self, label, z=None):
 ########################
 
 
+def batch_generator2(batch_dim, img_ids, model_name):
+    """
+    Batch generator using the given list of labels.
+    """
+
+    batch_labels = []
+    while True:
+        batch_imgs = []
+        img_id_batch = []
+        for img_id in (img_ids):
+            img_id_batch.append(img_id)
+            if len(img_id_batch) == batch_dim:
+                batch_imgs = create_image_batch(img_id_batch, model_name)
+                batch_labels = create_embed_batch(img_id_batch)
+                yield np.asarray(batch_imgs), np.asarray(batch_labels)
+                batch_imgs = []
+                img_id_batch = []
+                batch_labels = []
+        if batch_imgs:
+            yield np.asarray(batch_imgs), np.asarray(batch_labels)
+
 def batch_generator(batch_dim, test_labels, model_name):
     """
     Batch generator using the given list of labels.
     """
-    batch_labels = []
     while True:
         batch_imgs = []
         labels = []
@@ -73,7 +93,6 @@ def batch_generator(batch_dim, test_labels, model_name):
                 batch_labels = []
         if batch_imgs:
             yield np.asarray(batch_imgs), np.asarray(batch_labels)
-
 
 def get_image(image_path, model_name, img_size=128, img_resize=64, x=25, y=45):
     """
@@ -95,6 +114,21 @@ def get_image(image_path, model_name, img_size=128, img_resize=64, x=25, y=45):
     return img
 
 
+def create_image_batch2(labels, model_name):
+    """
+    Returns the list of images corresponding to the given labels.
+    """
+    imgs = []
+    #imgs_id = [item[0] for item in labels]
+
+    for i in labels:
+        image_path = './input/CelebA/img_align_celeba/img_align_celeba/' + i
+
+        imgs.append(get_image(image_path, model_name))
+
+    return imgs
+
+
 def create_image_batch(labels, model_name):
     """
     Returns the list of images corresponding to the given labels.
@@ -107,6 +141,23 @@ def create_image_batch(labels, model_name):
         imgs.append(get_image(image_path, model_name))
 
     return imgs
+
+def create_embed_batch(embed_ids):
+    """
+    Returns the list of images corresponding to the given labels.
+    """
+
+    embeds = []
+
+    for image_name in embed_ids:
+        embed_name = image_name[:-4]
+        embed_path = './embeddings/' + f"{embed_name}.npy"
+        with open(embed_path, 'rb') as f:
+            a = np.load(f, allow_pickle=True)
+            embeds.append(a)
+
+    return embeds
+
 
 
 def convert_batch_to_image_grid(image_batch, dim=64):
