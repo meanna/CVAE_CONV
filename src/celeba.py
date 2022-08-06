@@ -103,8 +103,8 @@ class CelebADataset(Sequence):
         """
 
         img = cv2.imread(image_path)
-        # img = img[y:y + img_size, x:x + img_size]
-        # img = cv2.resize(img, (img_resize, img_resize))
+        img = img[y:y + img_size, x:x + img_size]
+        img = cv2.resize(img, (img_resize, img_resize))
         img = np.array(img, dtype='float32')
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img /= 255.0  # Normalization to [0.,1.]
