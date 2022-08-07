@@ -33,6 +33,7 @@ based on https://github.com/EleMisi/ConditionalVAE
 
 - go to `src/generate_clip_embedings.py`, go to the main function set the number of images that you 
 want to create embeddings for. If you want to do it for the whole dataset set `size=None`
+- alternatively, run `python src/generate_clip_embeddings_lm.py 128` with 128 as the desired number of embeddings. you may choose another number. if no number is specified, it will embed all images in the dataset (>202,000).
 - You will get `embeddings.csv` (1.7 GB)
 - A small version is already included in the repo
   - `src/embeddings_128.csv`
