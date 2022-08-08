@@ -66,29 +66,30 @@ based on https://github.com/EleMisi/ConditionalVAE
 
 ## model architecture
 
-input: image tensor (batch,64, 64, 3), condition/CLIP image embeddings (batch, 1,1, 512)
-output: image tensor (batch,64, 64, 3)
+- input: image tensor (batch,64, 64, 3), condition/CLIP image embeddings (batch, 1,1, 512)
+- output: image tensor (batch,64, 64, 3)
 
 ### VAE (conditional VAE 1)
 
--encoder:
-
-- block1: Conv2D, BatchNormalization, Leaky Relu
-- block2: Conv2D, BatchNormalization, Leaky Relu
-- block3: Conv2D, BatchNormalization, Leaky Relu
-- block4: Conv2D, BatchNormalization, Leaky Relu
-- flatten -> dense
-- output: mean, log variance -re-parametrization:
-- takes mean, log variance and output z (latent space)
-- z concatenated with the condition -> output -decoder:
-- take z + condition
-- dense -> Leaky Relu
-- block1: Conv2DTranspose, BatchNormalization, Leaky Relu
-- block2: Conv2DTranspose, BatchNormalization, Leaky Relu
-- block3: Conv2DTranspose, BatchNormalization, Leaky Relu
-- block4: Conv2DTranspose, BatchNormalization, Leaky Relu
-- block4: Conv2DTranspose -> sigmoid
-- output: image batch (batch,64,64,3)
+- encoder:
+  - block1: Conv2D, BatchNormalization, Leaky Relu
+  - block2: Conv2D, BatchNormalization, Leaky Relu
+  - block3: Conv2D, BatchNormalization, Leaky Relu
+  - block4: Conv2D, BatchNormalization, Leaky Relu
+  - flatten -> dense
+  - output: mean, log variance
+- re-parametrization:
+  - takes mean, log variance and output z (latent space)
+  - z concatenated with the condition -> output 
+- decoder:
+  - take z + condition
+  - dense -> Leaky Relu
+  - block1: Conv2DTranspose, BatchNormalization, Leaky Relu
+  - block2: Conv2DTranspose, BatchNormalization, Leaky Relu
+  - block3: Conv2DTranspose, BatchNormalization, Leaky Relu
+  - block4: Conv2DTranspose, BatchNormalization, Leaky Relu
+  - block4: Conv2DTranspose -> sigmoid
+  - output: image batch (batch,64,64,3)
 
 ### loss
 
@@ -98,7 +99,7 @@ output: image tensor (batch,64, 64, 3)
     - computed using mean and log var
 - reconstruction loss
     - over weighted MSE
-    - use binary crossentropy on real image and reconstructed image
+    - use binary cross-entropy on real image and reconstructed image
 
 ## model variation
 
