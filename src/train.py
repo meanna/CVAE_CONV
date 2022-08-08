@@ -1,4 +1,5 @@
 import os
+import sys
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 
@@ -8,8 +9,9 @@ from celeba import CelebADataset
 import time
 import numpy as np
 from matplotlib import pyplot as plt
-from image_generation_utils import attr_manipulation, image_generation
-from utils import batch_generator, convert_batch_to_image_grid, read_data, train_step
+from image_generation_utils import attr_manipulation, image_generation, attr_manipulation_interpolation
+from utils import batch_generator, convert_batch_to_image_grid, read_data, train_step, \
+    convert_batch_to_image_grid_interpolation
 from image_reconstruction_utils import image_reconstruction, interpolation
 from datetime import datetime
 
@@ -17,30 +19,48 @@ start_time_total = time.perf_counter()
 tf.random.set_seed(2)
 # ----------------------------------------------------------------------
 # Training configuration
-run_train = True
+run_train = False
 print("run train....", run_train)
 
 # trained models :  "2022-07-30_14.36.29"
 # set to None if you want to train a new model
-pretrained_model = None
+pretrained_model = "2022-08-07_01.14.16"  # "model_test"  #2022-08-06_10.27.42"
+checkpoint_path = None  # "./checkpoints/2022-07-30_14.36.29/model-5"
 
-# full dataset = "./embeddings.csv", "embeddings_128.csv"
+# full dataset = "./embeddings.csv", "embeddings_128.csv", "embeddings_32.csv"
 dataset_size = None
-embedding_path = "embeddings_128.csv"
-n_epochs = 3
+embedding_path = "embeddings_32.csv"
+n_epochs = 1
 save_model_every = 3
-encoder_concat_input_and_condition = False
+encoder_concat_input_and_condition = True
 
 latent_dim = 128
 learning_rate = 0.001
 batch_size = 32
 test_size = 32
-save_test_set = False  # True  # True: the test set image IDs and other useful information will be stored in a
+save_test_set = True  # True  # True: the test set image IDs and other useful information will be stored in a
 # pickle file
 # to further uses (e.g. Image_Generation.ipynb)
-
-# choose model: ori, attention
+# ----------------------------------------------------------------------
+# choose model: ori, attention, deeper
 model_type = "ori"
+
+if pretrained_model in ["2022-08-07_14.37.18"]:
+    model_type = "deeper"
+    encoder_concat_input_and_condition = True
+    latent_dim = 128
+
+elif pretrained_model in ["2022-08-07_14.33.03"]:
+    encoder_concat_input_and_condition = False
+    model_type = "ori"
+    latent_dim = 128
+
+#  best setting
+elif pretrained_model in ["2022-07-30_14.36.29", "2022-08-07_01.14.16"]:
+    encoder_concat_input_and_condition = True
+    model_type = "ori"
+    latent_dim = 128
+
 if model_type == "ori":
     # ori model, attention
     from ConvolutionalCondVAE import ConvCVAE, Decoder, Encoder
@@ -48,6 +68,11 @@ elif model_type == "attention":
     # attention model
     from vae_attention import ConvCVAE, Decoder, Encoder
 
+elif model_type == "deeper":
+    # attention model
+    from ConvolutionalCondVAE_2 import ConvCVAE, Decoder, Encoder
+
+print("model type", model_type)
 # ----------------------------------------------------------------------
 dataset = CelebADataset(test_size=test_size, batch_size=batch_size, save_test_set=save_test_set,
                         embedding_path=embedding_path)
@@ -87,7 +112,8 @@ optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 if pretrained_model:
     checkpoint_name = pretrained_model
 else:
-    checkpoint_name = f"{timestamp_str}"
+    checkpoint_name = timestamp_str
+
 checkpoint_root = os.path.join(".", "checkpoints", checkpoint_name)
 checkpoint_prefix = "model"
 save_prefix = os.path.join(checkpoint_root, checkpoint_prefix)
@@ -104,16 +130,23 @@ if not os.path.exists(result_folder):
 # Define the checkpoint
 
 checkpoint = tf.train.Checkpoint(module=model)
-if not False:
+# manager = tf.train.CheckpointManager(checkpoint, checkpoint_root, max_to_keep=None)
+# print(manager.checkpoints)
 
+if checkpoint_path:
+    checkpoint.restore(checkpoint_path).expect_partial()
+    print("Load checkpoint ...", checkpoint_path)
+else:
     # Restore the latest checkpoint
     latest = tf.train.latest_checkpoint(checkpoint_root)
+    print("latest checkpoint", latest)  # ./checkpoints/2022-08-06_10.27.42/model-6
 
     if latest is not None:
-        checkpoint.restore(latest)
-        print("Checkpoint restored:", latest)
-    else:
-        print("No checkpoint!")
+        checkpoint.restore(latest).expect_partial()
+        # ./checkpoints/model_test/model-6
+    elif not run_train:
+        print("No checkpoint found !")
+        sys.exit()
 
 # ----------------------------------------------------------------------
 # Read test_data.pickle
@@ -125,17 +158,25 @@ print("image batch", images.shape)
 print("label batch", labels.shape)
 
 
-def plot_recon_images(epoch):
+def plot_recon_images(epoch, save_folder=None):
     # Image reconstruction
     print("\n Plot reconstructed images ...")
-    image_reconstruction(model, images, labels, epoch, save_path=result_folder)
+    if save_folder:
+        result_folder_ = save_folder
+    else:
+        result_folder_ = result_folder
+    image_reconstruction(model, images, labels, epoch, save_path=result_folder_)
 
 
 # ----------------------------------------------------------------------
-def generate_image_given_text(target_attr=None):
+def generate_image_given_text(target_attr=None, save_folder=None):
     """E.g. target_attr = a man with bushy eyebrows"""
     print("\n Plot images given a text prompt ...")
-    image_generation(model, test_data, target_attr=target_attr, save_path=result_folder)
+    if save_folder:
+        result_folder_ = save_folder
+    else:
+        result_folder_ = result_folder
+    image_generation(model, test_data, target_attr=target_attr, save_path=result_folder_)
 
 
 # ----------------------------------------------------------------------
@@ -243,13 +284,12 @@ def plot_losses():
 # ----------------------------------------------------------------------
 
 
-def plot_image_with_attr(target_attr=None, image_embed_factor=1.0, new_attr_factor=1.0):
+def plot_image_with_attr(target_attr=None, image_embed_factor=0.5, save_folder=None):
     print("\n plot_image_with_attr ...")
 
     # Get reconstructed and modified images
     reconstructed_images, modified_images = attr_manipulation(images, labels, target_attr, model,
-                                                              image_embed_factor=image_embed_factor,
-                                                              new_attr_factor=new_attr_factor)
+                                                              image_embed_factor=image_embed_factor)
 
     f = plt.figure(figsize=(64, 32))  # figsize=(64, 32)
     ax = f.add_subplot(1, 2, 1)
@@ -262,19 +302,47 @@ def plot_image_with_attr(target_attr=None, image_embed_factor=1.0, new_attr_fact
               interpolation='nearest')
     plt.axis('off')
     str_target_attr = str(target_attr).replace(' ', '_')
-    str_target_attr_factors = f"{str_target_attr}_{image_embed_factor}_{new_attr_factor}"
+    str_target_attr_factors = f"{str_target_attr}_{image_embed_factor}"
     file_name = f"modified_images_{str_target_attr_factors}.png"
-    save_path = os.path.join(result_folder, file_name)
+    if save_folder:
+        save_path = os.path.join(save_folder, file_name)
+    else:
+        save_path = os.path.join(result_folder, file_name)
     plt.title(str_target_attr_factors, fontsize=60, pad=20)
     plt.show()
     # plt.tight_layout()
     print(f"image is saved as {save_path}")
-    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.savefig(save_path, dpi=200, bbox_inches='tight')
     plt.close()
 
 
+def plot_attr_manipulation_interpolation(target_attr="wear glasses", num_images=1, save_folder=None):
+    batch_result_list = attr_manipulation_interpolation(images, labels, target_attr, model, num_images)
+
+    for i, result in enumerate(batch_result_list):
+        plt.figure(figsize=(64, 32))  # figsize=(64, 32)
+
+        # ax = f.add_subplot(1, 2, 2)
+        plt.imshow(convert_batch_to_image_grid_interpolation(result),
+                   interpolation='nearest')
+        plt.axis('off')
+        str_target_attr = str(target_attr).replace(' ', '_')
+        str_target_attr_factors = f"{str_target_attr}"
+        file_name = f"modified_images_{str_target_attr_factors}_{i}.png"
+        if save_folder:
+            save_path = os.path.join(save_folder, file_name)
+        else:
+            save_path = os.path.join(result_folder, file_name)
+        plt.title(str_target_attr_factors, fontsize=60, pad=20)
+        plt.show()
+        # plt.tight_layout()
+        print(f"image is saved as {save_path}")
+        plt.savefig(save_path, dpi=200, bbox_inches='tight')  # dpi=100
+        plt.close()
+
+
 # ----------------------------------------------------------------------
-def plot_ori_images():
+def plot_ori_images(save_folder=None):
     # Plot original Images
     print("\n Plot original images")
     f = plt.figure(figsize=(32, 40))
@@ -283,9 +351,15 @@ def plot_ori_images():
               interpolation='nearest')
     plt.axis('off')
     plt.title('original images', fontsize=30, pad=20)
-    save_path = os.path.join(result_folder, "ori_images.png")
+
+    file_name = "ori_images.png"
+    if save_folder:
+        save_path = os.path.join(save_folder, file_name)
+    else:
+        save_path = os.path.join(result_folder, file_name)
+
     print(f"image is saved as {save_path}")
-    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.savefig(save_path, dpi=200, bbox_inches='tight')
     plt.close()
 
 
@@ -306,7 +380,7 @@ def plot_interpolation():
     plt.axis('off')
     plt.title('interpolated images', fontsize=30, pad=20)
     save_path = os.path.join(result_folder, "interpolation.png")
-    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.savefig(save_path, dpi=200, bbox_inches='tight')
     plt.close()
 
 
@@ -315,10 +389,14 @@ def plot_interpolation():
 if __name__ == "__main__":
     if run_train:
         train()
-    plot_image_with_attr(target_attr="angry", image_embed_factor=0.5, new_attr_factor=0.5)
-    generate_image_given_text(target_attr="a person with blue hair")
-    plot_recon_images(epoch=-1)
-    plot_ori_images()
+    save_at = "./results1/temp/"  # default: result_folder -- save to the model result folder
+    #plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3, save_folder=save_at)
+    # plot_image_with_attr(target_attr="angry", image_embed_factor=0.5, save_folder=save_at)
+    # generate_image_given_text(target_attr="wearing glasses", save_folder=save_at)
+    #generate_image_given_text(target_attr="smile", save_folder=save_at)
+    generate_image_given_text(target_attr=None, save_folder=save_at)
+    #plot_recon_images(epoch=00, save_folder=save_at)
+    plot_ori_images(save_folder=save_at)
 
     print('model name = ', checkpoint_name)
     print('result folder = ', result_folder)

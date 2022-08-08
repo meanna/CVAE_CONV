@@ -75,6 +75,7 @@ def batch_generator2(batch_dim, img_ids, model_name):
         if batch_imgs:
             yield np.asarray(batch_imgs), np.asarray(batch_labels)
 
+
 def batch_generator(batch_dim, test_labels, model_name):
     """
     Batch generator using the given list of labels.
@@ -93,6 +94,7 @@ def batch_generator(batch_dim, test_labels, model_name):
                 batch_labels = []
         if batch_imgs:
             yield np.asarray(batch_imgs), np.asarray(batch_labels)
+
 
 def get_image(image_path, model_name, img_size=128, img_resize=64, x=25, y=45):
     """
@@ -119,7 +121,7 @@ def create_image_batch2(labels, model_name):
     Returns the list of images corresponding to the given labels.
     """
     imgs = []
-    #imgs_id = [item[0] for item in labels]
+    # imgs_id = [item[0] for item in labels]
 
     for i in labels:
         image_path = './input/CelebA/img_align_celeba/img_align_celeba/' + i
@@ -142,6 +144,7 @@ def create_image_batch(labels, model_name):
 
     return imgs
 
+
 def create_embed_batch(embed_ids):
     """
     Returns the list of images corresponding to the given labels.
@@ -159,8 +162,16 @@ def create_embed_batch(embed_ids):
     return embeds
 
 
+def convert_batch_to_image_grid_interpolation(image_batch, dim=64):
+    # works for batch = 10
+    reshaped = (image_batch.reshape(2, 5, dim, dim, 3)
+                .transpose(0, 2, 1, 3, 4)
+                .reshape(2 * dim, 5 * dim, 3))
+    return reshaped
+
 
 def convert_batch_to_image_grid(image_batch, dim=64):
+    # works for batch=32
     reshaped = (image_batch.reshape(4, 8, dim, dim, 3)
                 .transpose(0, 2, 1, 3, 4)
                 .reshape(4 * dim, 8 * dim, 3))

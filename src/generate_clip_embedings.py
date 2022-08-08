@@ -1,3 +1,4 @@
+import random
 from ast import literal_eval
 
 import clip
@@ -67,17 +68,81 @@ def create_clip_embeddings(size=None):
     new_df.to_csv(out_file)
     print("out_file", out_file)
 
+
+def create_clip_embeddings_random(size=None):
+    file_path = "./input/CelebA/list_attr_celeba.csv"
+    df = pd.read_csv(file_path)
+    image_id_df = df['image_id']
+    image_id_df = image_id_df.reset_index()  # make sure indexes pair with number of rows
+
+    image_ids = image_id_df.values.tolist()
+    print(image_ids[0])
+    random.shuffle(image_ids)
+    print(image_ids[0])
+
+    image_ids = [image_path for id, image_path in image_ids]
+    first_part = size // 2
+    second_part = size - first_part
+    image_ids = image_ids[:size // 2] + image_ids[-second_part:]
+    print(len(image_ids))
+    print(image_ids)
+    return
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(device)
+    model, preprocess = clip.load("ViT-B/32", device=device)
+    model.cuda().eval()
+
+    embeddings = []
+    new_df = pd.DataFrame(image_ids, columns=['image_id'])
+
+    def my_gen():
+        images = []
+        for i, image_id in enumerate(image_ids):
+            image_path = './input/CelebA/img_align_celeba/img_align_celeba/' + image_id
+            image = preprocess(Image.open(image_path)).unsqueeze(0).to(device)
+            image = torch.squeeze(image)
+            images.append(image)
+            if i % 10 == 0:
+                print(i)
+                yield images
+                images = []
+        yield images
+
+    for images in my_gen():
+        images = torch.stack(images)
+        # print(images.shape) # torch.Size([100, 3, 224, 224])
+        with torch.no_grad():
+            image_features = model.encode_image(images.to(device))
+
+        for i, _ in enumerate(image_features):
+            image_f = image_features[i].cpu().detach().tolist()
+            embeddings.append(image_f)
+
+    print("embeddings", len(embeddings))
+    new_df["embeddings"] = embeddings
+    # print(type(embeddings))
+    # new_df["embeddings"] = new_df["embeddings"].astype(float)
+
+    if size:
+        out_file = "embeddings_" + str(size) + ".csv"
+    else:
+        out_file = "embeddings" + ".csv"
+    new_df.to_csv(out_file)
+    print("out_file", out_file)
+
+
 # this is to check the result
 def load_embeddings():
-    df = pd.read_csv("embeddings.csv", index_col=0,
+    df = pd.read_csv("embeddings_32.csv", index_col=0,
                      converters={'embeddings': literal_eval})
     print(df.columns)
-    img_ids = dict(zip(df['image_id'], df["embeddings"].values))
-    print(type(img_ids["000001.jpg"]))
-    print(img_ids["000001.jpg"][10])
+    print(df)
+    # img_ids = dict(zip(df['image_id'], df["embeddings"].values))
+    # print(type(img_ids["000001.jpg"]))
+    # print(img_ids["000001.jpg"][10])
 
 
 if __name__ == "__main__":
-    create_clip_embeddings(size=15)
+    create_clip_embeddings_random(size=32)
     # load_embeddings()
-

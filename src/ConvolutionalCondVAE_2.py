@@ -1,3 +1,4 @@
+# add block 5 and 6 to the encoder, decoder is same
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.initializers import he_normal
@@ -42,7 +43,22 @@ class Encoder(tf.keras.Model):
             padding='same',
             kernel_initializer=he_normal())
 
+        self.enc_block_5 = Conv2D(
+            filters=256*2,
+            kernel_size=3,
+            strides=(2, 2),
+            padding='same',
+            kernel_initializer=he_normal())
+
+        self.enc_block_6 = Conv2D(
+            filters=256*2*2,
+            kernel_size=3,
+            strides=(2, 2),
+            padding='same',
+            kernel_initializer=he_normal())
+
         self.flatten = tf.keras.layers.Flatten()
+        #self.dense = tf.keras.layers.Dense(latent_dim + latent_dim)
         self.dense = tf.keras.layers.Dense(latent_dim + latent_dim)
 
     def __call__(self, input_img, input_label, conditional_input, latent_dim, is_train):
@@ -60,22 +76,23 @@ class Encoder(tf.keras.Model):
             cond = input_label  # tf.random.uniform(shape=[32, 512])
             cond = tf.reshape(cond, [input_img.shape[0], 4, 4, -1])
 
-        # print("x", x.shape)
+        #print("input to encoder", x.shape) # (1, 64, 64, 515)
         x = self.enc_block_1(x)
         x = BatchNormalization(trainable=is_train)(x)
         x = tf.nn.leaky_relu(x)
+
         # Encoder block 2
         x = self.enc_block_2(x)
         x = BatchNormalization(trainable=is_train)(x)
         x = tf.nn.leaky_relu(x)
+
         # Encoder block 3
         x = self.enc_block_3(x)
-
         x = BatchNormalization(trainable=is_train)(x)
         x = tf.nn.leaky_relu(x)
+
         # Encoder block 4
         x = self.enc_block_4(x)
-
         x = BatchNormalization(trainable=is_train)(x)
         x = tf.nn.leaky_relu(x)
         # x = (32, 4, 4, 256)
@@ -84,7 +101,20 @@ class Encoder(tf.keras.Model):
             x = tf.concat([x, cond], axis=3)
             # print("x", x.shape) #x (32, 4, 4, 288)
 
-        x = self.dense(self.flatten(x))
+        #Encoder block 5
+        x = self.enc_block_5(x)
+        x = BatchNormalization(trainable=is_train)(x)
+        x = tf.nn.leaky_relu(x)
+        #
+        # Encoder block 6
+        x = self.enc_block_6(x)
+        x = BatchNormalization(trainable=is_train)(x)
+        x = tf.nn.leaky_relu(x)
+
+        #print("x before dense", x.shape) # x before dense (1, 1, 1, 1024)
+        x = self.flatten(x)
+        #print("x after flatten", x.shape) # x after flatten (1, 1024) #
+        x = self.dense(x) #x after dense (32, 256) ori
         #print("x after dense", x.shape)
 
         return x
@@ -106,6 +136,20 @@ class Decoder(tf.keras.Model):
         self.reshape = tf.keras.layers.Reshape(target_shape=(4, 4, 512))
 
         # input dim * stride if padding is same
+        self.dec_block_6 = Conv2DTranspose(
+            filters=256*2*2,
+            kernel_size=3,
+            strides=(2, 2),
+            padding='same',
+            kernel_initializer=he_normal())
+
+        self.dec_block_7 = Conv2DTranspose(
+            filters=256*2,
+            kernel_size=3,
+            strides=(2, 2),
+            padding='same',
+            kernel_initializer=he_normal())
+
         self.dec_block_1 = Conv2DTranspose(
             filters=256,
             kernel_size=3,
@@ -146,6 +190,7 @@ class Decoder(tf.keras.Model):
 
         # z_cond decoder (32, 168)
         # print("z_cond decoder", z_cond.shape)
+        #print("x before decoder", z_cond.shape) # x before encoder (32, 640)
         x = self.dense(z_cond)
         # x (32, 4096)
         # print("x", x.shape)
@@ -154,6 +199,18 @@ class Decoder(tf.keras.Model):
 
         # x reshape (32, 4, 4, 256)
         # print("x reshape", x.shape)
+
+        # Decoder block 6
+        # x = self.dec_block_6(x)
+        # x = BatchNormalization(trainable=is_train)(x)
+        # x = tf.nn.leaky_relu(x)
+        #
+        # #Decoder block 7
+        # x = self.dec_block_7(x)
+        # x = BatchNormalization(trainable=is_train)(x)
+        # x = tf.nn.leaky_relu(x)
+
+
         # Decoder block 1
         x = self.dec_block_1(x)
         x = BatchNormalization(trainable=is_train)(x)
@@ -171,7 +228,10 @@ class Decoder(tf.keras.Model):
         x = BatchNormalization(trainable=is_train)(x)
         x = tf.nn.leaky_relu(x)
 
-        return self.dec_block_5(x)
+        x = self.dec_block_5(x)
+        #print("x out decoder", x.shape) #x out decoder (32, 64, 64, 3)
+        #x = tf.random.uniform(shape=(32, 64, 64, 3))
+        return x
 
 
 #########################
@@ -206,7 +266,7 @@ class ConvCVAE(tf.keras.Model):
         z_mean, z_log_var = tf.split(
             self.encoder(input_img, input_label, conditional_input, self.latent_dim, is_train), num_or_size_splits=2,
             axis=1)
-        # print("....done encoding")
+        #print("....done encoding")
         z_cond = self.reparametrization(z_mean, z_log_var, input_label)
         logits = self.decoder(z_cond, is_train)
         # print("....done decoding")
@@ -288,5 +348,3 @@ class ConvCVAE(tf.keras.Model):
         z_cond = tf.concat([z, input_label], axis=1)  # (batch_size, label_dim + latent_dim)
 
         return z_cond
-
-
