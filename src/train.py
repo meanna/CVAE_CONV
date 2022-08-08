@@ -389,14 +389,18 @@ def plot_interpolation():
 if __name__ == "__main__":
     if run_train:
         train()
-    save_at = "./results1/temp/"  # default: result_folder -- save to the model result folder
-    #plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3, save_folder=save_at)
+    save_at = "./results1/temp/"
+    # save_at = result_folder <-- save to the model result folder
+
+    # plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3, save_folder=save_at)
     # plot_image_with_attr(target_attr="angry", image_embed_factor=0.5, save_folder=save_at)
+
     # generate_image_given_text(target_attr="wearing glasses", save_folder=save_at)
-    #generate_image_given_text(target_attr="smile", save_folder=save_at)
+    # generate_image_given_text(target_attr="smile", save_folder=save_at)
     generate_image_given_text(target_attr=None, save_folder=save_at)
-    #plot_recon_images(epoch=00, save_folder=save_at)
-    plot_ori_images(save_folder=save_at)
+
+    # plot_recon_images(epoch=00, save_folder=save_at)
+    # plot_ori_images(save_folder=save_at)
 
     print('model name = ', checkpoint_name)
     print('result folder = ', result_folder)

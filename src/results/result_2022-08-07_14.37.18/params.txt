@@ -1,0 +1,33 @@
+encoder_concat_input_and_condition = True
+learning_rate = 0.001
+train_size = 202567
+batch_size = 32 
+dataset.train_size = 202567
+label_dim = 512
+image_dim = [64, 64, 3]
+latent_dim = 128
+beta = 0.65
+model checkpoint = ./checkpoints/2022-08-07_14.37.18/model
+
+Epoch 1: loss 2265.0601 | reconstr loss 2237.4590 | latent loss 42.4630
+Epoch 2: loss 2247.7881 | reconstr loss 2219.4648 | latent loss 43.5743
+Epoch 3: loss 2239.8149 | reconstr loss 2211.1858 | latent loss 44.0450
+Epoch 4: loss 2234.8818 | reconstr loss 2206.0574 | latent loss 44.3453
+Epoch 5: loss 2231.4041 | reconstr loss 2202.4316 | latent loss 44.5726
+Epoch 6: loss 2228.7393 | reconstr loss 2199.6599 | latent loss 44.7377
+Epoch 7: loss 2226.6104 | reconstr loss 2197.4524 | latent loss 44.8583
+Epoch 8: loss 2224.8411 | reconstr loss 2195.6248 | latent loss 44.9483
+Epoch 9: loss 2223.3369 | reconstr loss 2194.0784 | latent loss 45.0133
+Epoch 10: loss 2222.0254 | reconstr loss 2192.7329 | latent loss 45.0654
+Epoch 11: loss 2220.8772 | reconstr loss 2191.5574 | latent loss 45.1071
+Epoch 12: loss 2219.8564 | reconstr loss 2190.5149 | latent loss 45.1403
+Epoch 13: loss 2218.9395 | reconstr loss 2189.5796 | latent loss 45.1686
+Epoch 14: loss 2218.1077 | reconstr loss 2188.7336 | latent loss 45.1906
+Epoch 15: loss 2217.3467 | reconstr loss 2187.9607 | latent loss 45.2090
+Epoch 16: loss 2216.6475 | reconstr loss 2187.2510 | latent loss 45.2249
+Epoch 17: loss 2216.0024 | reconstr loss 2186.5967 | latent loss 45.2394
+Epoch 18: loss 2215.4043 | reconstr loss 2185.9910 | latent loss 45.2509
+Epoch 19: loss 2214.8452 | reconstr loss 2185.4265 | latent loss 45.2591
+Epoch 20: loss 2214.3198 | reconstr loss 2184.8984 | latent loss 45.2638
+
+time total = 14943.70127295889 sec (249.06168788264816 min )

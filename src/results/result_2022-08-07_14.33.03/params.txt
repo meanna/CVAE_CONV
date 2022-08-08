@@ -1,0 +1,38 @@
+encoder_concat_input_and_condition = False
+learning_rate = 0.001
+train_size = 202567
+batch_size = 32 
+dataset.train_size = 202567
+label_dim = 512
+image_dim = [64, 64, 3]
+latent_dim = 128
+beta = 0.65
+model checkpoint = ./checkpoints/2022-08-07_14.33.03/model
+
+Epoch 1: loss 2241.8315 | reconstr loss 2207.7207 | latent loss 52.4781
+Epoch 2: loss 2229.3127 | reconstr loss 2194.6394 | latent loss 53.3438
+Epoch 3: loss 2223.6711 | reconstr loss 2188.8418 | latent loss 53.5835
+Epoch 4: loss 2220.2515 | reconstr loss 2185.4023 | latent loss 53.6136
+Epoch 5: loss 2217.8579 | reconstr loss 2183.0339 | latent loss 53.5749
+Epoch 6: loss 2216.0540 | reconstr loss 2181.2778 | latent loss 53.5017
+Epoch 7: loss 2214.6177 | reconstr loss 2179.9033 | latent loss 53.4061
+Epoch 8: loss 2213.4385 | reconstr loss 2178.7869 | latent loss 53.3099
+Epoch 9: loss 2212.4460 | reconstr loss 2177.8611 | latent loss 53.2075
+Epoch 10: loss 2211.5945 | reconstr loss 2177.0759 | latent loss 53.1052
+Epoch 11: loss 2210.8489 | reconstr loss 2176.3965 | latent loss 53.0034
+Epoch 12: loss 2210.1875 | reconstr loss 2175.7983 | latent loss 52.9061
+Epoch 13: loss 2209.5962 | reconstr loss 2175.2693 | latent loss 52.8103
+Epoch 14: loss 2209.0647 | reconstr loss 2174.7979 | latent loss 52.7176
+Epoch 15: loss 2208.5796 | reconstr loss 2174.3716 | latent loss 52.6270
+Epoch 16: loss 2208.1355 | reconstr loss 2173.9851 | latent loss 52.5385
+Epoch 17: loss 2207.7256 | reconstr loss 2173.6321 | latent loss 52.4513
+Epoch 18: loss 2207.3464 | reconstr loss 2173.3083 | latent loss 52.3660
+Epoch 19: loss 2206.9929 | reconstr loss 2173.0073 | latent loss 52.2851
+Epoch 20: loss 2206.6621 | reconstr loss 2172.7283 | latent loss 52.2053
+Epoch 21: loss 2206.3542 | reconstr loss 2172.4700 | latent loss 52.1286
+Epoch 22: loss 2206.0635 | reconstr loss 2172.2285 | latent loss 52.0532
+Epoch 23: loss 2205.7896 | reconstr loss 2172.0027 | latent loss 51.9789
+Epoch 24: loss 2205.5310 | reconstr loss 2171.7908 | latent loss 51.9072
+Epoch 25: loss 2205.2859 | reconstr loss 2171.5918 | latent loss 51.8366
+
+time total = 13906.745098082349 sec (231.77908496803914 min )
