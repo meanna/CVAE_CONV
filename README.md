@@ -103,18 +103,18 @@ based on https://github.com/EleMisi/ConditionalVAE
 
 ## model variation
 
-- base model: unconditional VAE, the input is just an image tensor
-- conditional VAE 1: input to the encoder is image concatenated with the condition
+- **base model**: unconditional VAE, the input is just an image tensor
+- **conditional VAE 1**: input to the encoder is image concatenated with the condition
     - ConvolutionalCondVAE.py
     - good result
     - this is the best architecture
-- conditional VAE 2: input to the encoder is the image tensor, the condition is added as additional channel in the last
+- **conditional VAE 2**: input to the encoder is the image tensor, the condition is added as additional channel in the last
   of the encoder (after block 4, before dense, when the tensor size is 4 x 4)
     - ConvolutionalCondVAE.py
     - result is similar to conditional VAE 1
-- conditional VAE 1 + attention layers
+- **conditional VAE 1 + attention layers**
     - does not give good result, gives rather blurry images
-- conditional VAE 1 + additional Conv2D block (block 5, 6)
+- **conditional VAE 1 + additional Conv2D block** (block 5, 6)
     - ConvolutionalCondVAE_2.py
     - result is worse than conditional VAE 1, but not very bad
 
