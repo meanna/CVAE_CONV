@@ -118,7 +118,7 @@ checkpoint_root = os.path.join(".", "checkpoints", checkpoint_name)
 checkpoint_prefix = "model"
 save_prefix = os.path.join(checkpoint_root, checkpoint_prefix)
 
-result_folder_main = "results1"
+result_folder_main = "results"
 if not os.path.exists(result_folder_main):
     os.mkdir(result_folder_main)
 
