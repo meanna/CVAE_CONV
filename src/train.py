@@ -292,7 +292,7 @@ def plot_image_with_attr(target_attr=None, image_embed_factor=0.5, save_folder=N
     reconstructed_images, modified_images = attr_manipulation(images, labels, target_attr, model,
                                                               image_embed_factor=image_embed_factor)
 
-    f = plt.figure(figsize=(64, 32))  # figsize=(64, 32)
+    f = plt.figure(figsize=(20, 10))  # figsize=(64, 32)
     ax = f.add_subplot(1, 2, 1)
     ax.imshow(convert_batch_to_image_grid(reconstructed_images),
               interpolation='nearest')
@@ -309,7 +309,7 @@ def plot_image_with_attr(target_attr=None, image_embed_factor=0.5, save_folder=N
         save_path = os.path.join(save_folder, file_name)
     else:
         save_path = os.path.join(result_folder, file_name)
-    plt.title(str_target_attr_factors, fontsize=60, pad=20)
+    plt.title(str_target_attr_factors, fontsize=20, pad=10)
     plt.show()
     # plt.tight_layout()
     print(f"image is saved as {save_path}")
@@ -321,12 +321,14 @@ def plot_attr_manipulation_interpolation(target_attr="wear glasses", num_images=
     batch_result_list = attr_manipulation_interpolation(images, labels, target_attr, model, num_images)
 
     for i, result in enumerate(batch_result_list):
-        plt.figure(figsize=(64, 32))  # figsize=(64, 32)
 
-        # ax = f.add_subplot(1, 2, 2)
-        plt.imshow(convert_batch_to_image_grid_interpolation(result),
+        f = plt.figure(figsize=(32, 40))  # figsize=(64, 32)
+
+        ax = f.add_subplot(1, 2, 1)
+        ax.imshow(convert_batch_to_image_grid_interpolation(result),
                    interpolation='nearest')
         plt.axis('off')
+
         str_target_attr = str(target_attr).replace(' ', '_')
         str_target_attr_factors = f"{str_target_attr}"
         file_name = f"modified_images_{str_target_attr_factors}_{i}.png"
@@ -334,7 +336,7 @@ def plot_attr_manipulation_interpolation(target_attr="wear glasses", num_images=
             save_path = os.path.join(save_folder, file_name)
         else:
             save_path = os.path.join(result_folder, file_name)
-        plt.title(str_target_attr_factors, fontsize=60, pad=20)
+        plt.title(str_target_attr_factors, fontsize=20, pad=10)
         plt.show()
         # plt.tight_layout()
         print(f"image is saved as {save_path}")
@@ -351,7 +353,7 @@ def plot_ori_images(save_folder=None):
     ax.imshow(convert_batch_to_image_grid(images),
               interpolation='nearest')
     plt.axis('off')
-    plt.title('original images', fontsize=30, pad=20)
+    plt.title('original images', fontsize=20, pad=10)
 
     file_name = "ori_images.png"
     if save_folder:
@@ -379,7 +381,7 @@ def plot_interpolation():
     ax = f.add_subplot(1, 2, 1)
     ax.imshow(convert_batch_to_image_grid(np.asarray(interpolated_images)))
     plt.axis('off')
-    plt.title('interpolated images', fontsize=30, pad=20)
+    plt.title('interpolated images', fontsize=20, pad=10)
     save_path = os.path.join(result_folder, "interpolation.png")
     plt.savefig(save_path, dpi=200, bbox_inches='tight')
     plt.close()
@@ -390,11 +392,11 @@ def plot_interpolation():
 if __name__ == "__main__":
     if run_train:
         train()
-    save_at = "./results1/temp/"
+    save_at = "./results/temp/"
     # save_at = result_folder <-- save to the model result folder
 
-    # plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3, save_folder=save_at)
-    # plot_image_with_attr(target_attr="angry", image_embed_factor=0.5, save_folder=save_at)
+    plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3, save_folder=save_at)
+    plot_image_with_attr(target_attr="angry", image_embed_factor=0.5, save_folder=save_at)
 
     # generate_image_given_text(target_attr="wearing glasses", save_folder=save_at)
     # generate_image_given_text(target_attr="smile", save_folder=save_at)

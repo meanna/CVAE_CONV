@@ -2,6 +2,10 @@
 
 based on https://github.com/EleMisi/ConditionalVAE
 
+## colab
+
+[link to notebook](https://colab.research.google.com/drive/1xWb7jvSiUheJjo6RdNvexpEWGPmG3c5k?usp=sharing)
+
 ## if using colab, install these packages
 
 - pip install ftfy regex tqdm
