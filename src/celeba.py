@@ -15,7 +15,8 @@ class CelebADataset(Sequence):
     """Load image id and embeddings to the memory, then generating a batch open only images."""
 
     def __init__(self, test_size, batch_size, mode='train', save_test_set=False,
-                 embedding_path="./embeddings_300.csv", celeba_path= './input/CelebA/img_align_celeba/img_align_celeba/'):
+                 embedding_path="./embeddings_300.csv",
+                 celeba_path='./input/CelebA/img_align_celeba/img_align_celeba/'):
         self.embedding_path = embedding_path
         self.train_img_ids, self.test_img_ids, self.attributes = self.load(test_size)
         self.batch_size = batch_size

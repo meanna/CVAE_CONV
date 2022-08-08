@@ -76,7 +76,8 @@ def batch_generator2(batch_dim, img_ids, model_name):
             yield np.asarray(batch_imgs), np.asarray(batch_labels)
 
 
-def batch_generator(batch_dim, test_labels, model_name, celeba_path='./input/CelebA/img_align_celeba/img_align_celeba/'):
+def batch_generator(batch_dim, test_labels, model_name,
+                    celeba_path='./input/CelebA/img_align_celeba/img_align_celeba/'):
     """
     Batch generator using the given list of labels.
     """
@@ -131,7 +132,7 @@ def create_image_batch2(labels, model_name):
     return imgs
 
 
-def create_image_batch(labels, model_name, celeba_path= './input/CelebA/img_align_celeba/img_align_celeba/'):
+def create_image_batch(labels, model_name, celeba_path='./input/CelebA/img_align_celeba/img_align_celeba/'):
     """
     Returns the list of images corresponding to the given labels.
     """

@@ -40,7 +40,8 @@ def sample(z_mean, z_log_var, input_label, latent_dim=128):
     return z_cond
 
 
-def image_generation(model, test_data, target_attr=None, save_path=None, celeba_path='./input/CelebA/img_align_celeba/img_align_celeba/'):
+def image_generation(model, test_data, target_attr=None, save_path=None,
+                     celeba_path='./input/CelebA/img_align_celeba/img_align_celeba/'):
     """
     Generates and plots a batch of images with specific attributes (if given).
 
@@ -60,9 +61,10 @@ def image_generation(model, test_data, target_attr=None, save_path=None, celeba_
 
     # Vector of attributes taken from the test set.
     else:
-        batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv',celeba_path=celeba_path)
+        batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv',
+                                    celeba_path=celeba_path)
         _, labels = next(batch_gen)
-        print("Generation of 16 images with fixed attributes.", labels.shape) # (32, 512)
+        print("Generation of 16 images with fixed attributes.", labels.shape)  # (32, 512)
         target_attr = "no attribute given"
 
     # z_cond = model.reparametrization(input_label=labels, z_mean=1.0, z_log_var=0.3)
@@ -133,7 +135,7 @@ def attr_manipulation_interpolation(images, labels, target_attr, model, num_imag
 
     result_batch = []
     if num_images < (images.shape[0]):
-        num = num_images # range(images.shape[0])
+        num = num_images  # range(images.shape[0])
     else:
         num = images.shape[0]
 
@@ -170,7 +172,7 @@ def attr_manipulation_interpolation(images, labels, target_attr, model, num_imag
             modified_images.append(generated.numpy()[0, :, :, :])
         result = np.asarray(modified_images, dtype='float32')  # (10, 64, 64, 3)
         result_batch.append(result)
-        #break
+        # break
     return result_batch
 
     # return np.asarray(reconstructed_images, dtype='float32'), np.asarray(modified_images, dtype='float32')
