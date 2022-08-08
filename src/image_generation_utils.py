@@ -40,7 +40,56 @@ def sample(z_mean, z_log_var, input_label, latent_dim=128):
     return z_cond
 
 
-def image_generation(model, test_data, target_attr=None, save_path=None,
+def image_generation(model, labels, target_attr=None, save_path=None):
+    """
+    Generates and plots a batch of images with specific attributes (if given).
+
+    - list target_attr : list of desired attributes [default None]
+    """
+
+    # Vector of user-defined attributes.
+    if target_attr:
+
+        text = clip.tokenize([target_attr]).to(device)
+
+        with torch.no_grad():
+            text_features = clip_model.encode_text(text)
+
+        text_condition = np.tile(text_features.cpu(), reps=[labels.shape[0], 1])
+        print("Generation of 16 images with attributes: ", target_attr)
+
+        # batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv',
+        #                             celeba_path=celeba_path)
+        # _, labels_image = next(batch_gen)
+        # do interpolation
+        #condition = (text_condition *0.5 ) + (labels*0.5) # labels is image embedding condition
+        condition = text_condition
+    else:
+        condition = labels
+        target_attr = "no text prompt"
+
+    # z_cond = model.reparametrization(input_label=labels, z_mean=1.0, z_log_var=0.3)
+    z_cond = sample(z_mean=1.0, z_log_var=0.3, input_label=condition, latent_dim=128)
+    logits = model.decoder(z_cond, is_train=False)
+    generated = tf.nn.sigmoid(logits)
+
+    # Plot
+    f = plt.figure(figsize=(10, 10))
+    # plt.title(str(target_attr))
+    ax = f.add_subplot(1, 1, 1)
+    ax.imshow(convert_batch_to_image_grid(generated.numpy()))
+    plt.axis('off')
+    prompt = target_attr.replace(' ', '_')
+    plt.title(prompt, fontsize=20, pad=20)
+
+    if save_path:
+        plt.savefig(os.path.join(save_path, "generation_" + prompt + ".png"), dpi=200, bbox_inches='tight')
+
+    plt.show()
+    plt.clf()
+
+
+def image_generation_old(model, test_data, target_attr=None, save_path=None,
                      celeba_path='./input/CelebA/img_align_celeba/img_align_celeba/'):
     """
     Generates and plots a batch of images with specific attributes (if given).
@@ -58,6 +107,11 @@ def image_generation(model, test_data, target_attr=None, save_path=None,
 
         labels = np.tile(text_features.cpu(), reps=[test_data['batch_size'], 1])
         print("Generation of 16 images with attributes: ", target_attr)
+
+        # batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv',
+        #                             celeba_path=celeba_path)
+        # _, labels_image = next(batch_gen)
+        # labels = (labels *0.5 ) + (labels_image*0.5)
 
     # Vector of attributes taken from the test set.
     else:
@@ -86,8 +140,6 @@ def image_generation(model, test_data, target_attr=None, save_path=None,
 
     plt.show()
     plt.clf()
-
-
 ###############################
 #   Attributes Manipulation   #
 ###############################

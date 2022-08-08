@@ -24,12 +24,12 @@ print("run train....", run_train)
 
 # trained models :  "2022-07-30_14.36.29"
 # set to None if you want to train a new model
-pretrained_model = "2022-08-07_01.14.16"  # "model_test"  #2022-08-06_10.27.42"
+pretrained_model = "2022-07-30_14.36.29"  # "2022-08-07_01.14.16"  # "model_test"  #2022-08-06_10.27.42"
 checkpoint_path = None  # "./checkpoints/2022-07-30_14.36.29/model-5"
 
 # full dataset = "./embeddings.csv", "embeddings_128.csv", "embeddings_32.csv"
 dataset_size = None
-embedding_path = "embeddings_32.csv"
+embedding_path = "embeddings_128_random.csv"
 n_epochs = 1
 save_model_every = 3
 encoder_concat_input_and_condition = True
@@ -37,7 +37,7 @@ encoder_concat_input_and_condition = True
 latent_dim = 128
 learning_rate = 0.001
 batch_size = 32
-test_size = 32
+test_size = 64
 save_test_set = True  # True  # True: the test set image IDs and other useful information will be stored in a
 # pickle file
 # to further uses (e.g. Image_Generation.ipynb)
@@ -153,7 +153,8 @@ else:
 # Read test_data.pickle
 test_data = read_data("./test_data")
 # Build a batch of test images
-batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv', celeba_path=celeba_path)
+batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv',
+                            celeba_path=celeba_path)
 images, labels = next(batch_gen)
 print("image batch", images.shape)
 print("label batch", labels.shape)
@@ -177,7 +178,7 @@ def generate_image_given_text(target_attr=None, save_folder=None):
         result_folder_ = save_folder
     else:
         result_folder_ = result_folder
-    image_generation(model, test_data, target_attr=target_attr, save_path=result_folder_)
+    image_generation(model, labels, target_attr=target_attr, save_path=result_folder_)
 
 
 # ----------------------------------------------------------------------
@@ -326,7 +327,7 @@ def plot_attr_manipulation_interpolation(target_attr="wear glasses", num_images=
 
         ax = f.add_subplot(1, 2, 1)
         ax.imshow(convert_batch_to_image_grid_interpolation(result),
-                   interpolation='nearest')
+                  interpolation='nearest')
         plt.axis('off')
 
         str_target_attr = str(target_attr).replace(' ', '_')
@@ -345,9 +346,12 @@ def plot_attr_manipulation_interpolation(target_attr="wear glasses", num_images=
 
 
 # ----------------------------------------------------------------------
-def plot_ori_images(save_folder=None):
+def plot_ori_images(save_folder=None, i=0):
     # Plot original Images
     print("\n Plot original images")
+    # batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv',
+    #                             celeba_path=celeba_path)
+
     f = plt.figure(figsize=(32, 40))
     ax = f.add_subplot(1, 2, 1)
     ax.imshow(convert_batch_to_image_grid(images),
@@ -355,7 +359,7 @@ def plot_ori_images(save_folder=None):
     plt.axis('off')
     plt.title('original images', fontsize=20, pad=10)
 
-    file_name = "ori_images.png"
+    file_name = f"ori_images{i}.png"
     if save_folder:
         save_path = os.path.join(save_folder, file_name)
     else:
@@ -395,15 +399,21 @@ if __name__ == "__main__":
     save_at = "./results/temp/"
     # save_at = result_folder <-- save to the model result folder
 
-    plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3, save_folder=save_at)
-    plot_image_with_attr(target_attr="angry", image_embed_factor=0.5, save_folder=save_at)
-
-    # generate_image_given_text(target_attr="wearing glasses", save_folder=save_at)
+    # plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3, save_folder=save_at)
+    # plot_image_with_attr(target_attr="wear glasses", image_embed_factor=0.5, save_folder=save_at)
+    #
+    # generate_image_given_text(target_attr="wearing glasses and turn left", save_folder=save_at)
     # generate_image_given_text(target_attr="smile", save_folder=save_at)
-    generate_image_given_text(target_attr=None, save_folder=save_at)
-
+    # generate_image_given_text(target_attr=None, save_folder=save_at)
+    #
     # plot_recon_images(epoch=00, save_folder=save_at)
-    # plot_ori_images(save_folder=save_at)
+    plot_ori_images(save_folder=save_at, i=0)
+    # images, labels = next(batch_gen)
+    # plot_ori_images(save_folder=save_at, i=1)
+    # #images, labels = next(batch_gen)
+    # plot_ori_images(save_folder=save_at, i=2)
+    # #images, labels = next(batch_gen)
+    # plot_ori_images(save_folder=save_at, i=3)
 
     print('model name = ', checkpoint_name)
     print('result folder = ', result_folder)
