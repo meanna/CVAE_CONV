@@ -114,6 +114,7 @@ based on https://github.com/EleMisi/ConditionalVAE
     - result is similar to conditional VAE 1
 - **conditional VAE 1 + attention layers**
     - does not give good result, gives rather blurry images
+    - [see](src/results/result_2022-08-02_12.53.05_attention)
 - **conditional VAE 1 + additional Conv2D block** (block 5, 6)
     - ConvolutionalCondVAE_2.py
     - result is worse than conditional VAE 1, but not very bad
