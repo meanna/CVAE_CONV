@@ -43,6 +43,7 @@ based on https://github.com/EleMisi/ConditionalVAE
 - `gdown https://drive.google.com/uc?id=1P1z0Jl_wND6mqR73QSZ59bDxPO7IEX1P`
 - `unzip -q 2022-07-30_14.36.29.zip -d ./`
 - put it in "checkpoints" folder, `mv 2022-07-30_14.36.29 checkpoints/`
+- more checkpoints are listed below
 
 ## train the model
 
@@ -50,15 +51,31 @@ based on https://github.com/EleMisi/ConditionalVAE
 - set `n_epochs = [number]`
 - set `save_model_every = [number]`
 - set `pretrained_model = "2022-07-30_14.36.29"`, set to `None` if you want to train a new model
-- set `embedding_path = "embeddings_128.csv"`, (or full dataset = "embeddings.csv")
+- set `embedding_path = "embeddings.csv"` (full dataset)
 - set `run_train = True`
     - the model will be saved in `checkpoints` folder
-- go to the main function below, choose the functions you want to run (you can run all)
-    - `generate_image_given_text(target_attr="wear reading glasses and smile")`
-    - `plot_recon_images()`
-    - `plot_image_with_attr(target_attr="angry", image_embed_factor=0.6, new_attr_factor=0.8)`
-    - `plot_interpolation()`
-    - `plot_ori_images()`
+
+
+## image generation
+- go to `src/train.py`
+- set `pretrained_model = "2022-07-30_14.36.29"` (or another checkpoint)
+- set `run_train = False`
+- set `embedding_path = "embeddings_128.csv"`
+- set `test_size = 32`
+- go to the main function at the bottom, choose the functions you want to run (you can run all)
+- set `save_at = result_folder` (save images to the model result folder)
+
+### functions to generate images
+- `plot_recon_images()` : plot reconstruction on the test batch
+- `plot_ori_images()` : plot original test images
+- `generate_image_given_text(target_attr="wear reading glasses and smile")`: generate image given a text prompt
+- `generate_image_given_text(target_attr=None)`: generate image (condition are the image embeddings from test set)
+- `plot_image_with_attr(target_attr="angry", image_embed_factor=0.6)`: attribute manipulation
+- `plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3)`: attribute manipulation interpolation for 3 images
+  - if num_images is None, interpolation plot for 32 images will be created (you probably may not want to run it because it will take a long time)
+
+
+
 
 ## etc
 
@@ -169,3 +186,5 @@ based on https://github.com/EleMisi/ConditionalVAE
 - Each model folder consists of multiple checkpoints (we saved the model every 5 epoch).
 - To use a specific checkpoint, set e.g. `checkpoint_path = "./checkpoints/2022-07-30_14.36.29/model-5"`
 - Go to the model folder and see which model do you have available
+
+
