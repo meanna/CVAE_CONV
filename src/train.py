@@ -74,8 +74,9 @@ elif model_type == "deeper":
 
 print("model type", model_type)
 # ----------------------------------------------------------------------
+celeba_path = './input/CelebA/img_align_celeba/img_align_celeba/'
 dataset = CelebADataset(test_size=test_size, batch_size=batch_size, save_test_set=save_test_set,
-                        embedding_path=embedding_path)
+                        embedding_path=embedding_path, celeba_path=celeba_path)
 print("dataset.train_size", dataset.train_size)
 
 train_size = dataset.train_size
@@ -152,7 +153,7 @@ else:
 # Read test_data.pickle
 test_data = read_data("./test_data")
 # Build a batch of test images
-batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv')
+batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv', celeba_path=celeba_path)
 images, labels = next(batch_gen)
 print("image batch", images.shape)
 print("label batch", labels.shape)

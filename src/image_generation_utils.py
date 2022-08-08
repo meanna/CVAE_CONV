@@ -40,7 +40,7 @@ def sample(z_mean, z_log_var, input_label, latent_dim=128):
     return z_cond
 
 
-def image_generation(model, test_data, target_attr=None, save_path=None):
+def image_generation(model, test_data, target_attr=None, save_path=None, celeba_path='./input/CelebA/img_align_celeba/img_align_celeba/'):
     """
     Generates and plots a batch of images with specific attributes (if given).
 
@@ -60,7 +60,7 @@ def image_generation(model, test_data, target_attr=None, save_path=None):
 
     # Vector of attributes taken from the test set.
     else:
-        batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv')
+        batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv',celeba_path=celeba_path)
         _, labels = next(batch_gen)
         print("Generation of 16 images with fixed attributes.", labels.shape) # (32, 512)
         target_attr = "no attribute given"

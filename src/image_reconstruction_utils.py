@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
-from utils import batch_generator, convert_batch_to_image_grid
+from utils import convert_batch_to_image_grid
 
 
 #########################
