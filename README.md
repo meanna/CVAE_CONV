@@ -179,9 +179,20 @@ based on https://github.com/EleMisi/ConditionalVAE
     - params
         - batch_size = 32
         - latent_dim = 128
-    - time: 249
+    - time: 249 min
     - [download zip](https://drive.google.com/file/d/10dsnOvlziCFm10QdwBjFW0OzNm_YnoRs/view?usp=sharing)
     - or `gdown https://drive.google.com/uc?id=10dsnOvlziCFm10QdwBjFW0OzNm_YnoRs`
+
+- 2022-08-08_12.19.07
+  - model: conditional VAE 1 (increase latent dim to 256)
+  - result: ....
+  - epoch: 25
+  - params
+      - batch_size = 32
+      - latent_dim = **256**
+  - time: 363 min
+  - [download zip](https://drive.google.com/file/d/1mo7j57tcTI9TNPAuo_F2yIED2-jQQZsF/view?usp=sharing)
+  - or `gdown https://drive.google.com/uc?id=1mo7j57tcTI9TNPAuo_F2yIED2-jQQZsF`
 
 ### How to load the pre-trained model
 

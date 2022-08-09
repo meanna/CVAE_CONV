@@ -24,7 +24,7 @@ print("run train....", run_train)
 
 # trained models :  "2022-07-30_14.36.29"
 # set to None if you want to train a new model
-pretrained_model = "2022-07-30_14.36.29"  # "2022-08-07_01.14.16"  # "model_test"  #2022-08-06_10.27.42"
+pretrained_model = "2022-08-08_12.19.07"  # "2022-08-07_01.14.16"  # "model_test"  #2022-08-06_10.27.42"
 checkpoint_path = None  # "./checkpoints/2022-07-30_14.36.29/model-5"
 
 # full dataset = "./embeddings.csv", "embeddings_128.csv", "embeddings_32.csv"
@@ -37,7 +37,7 @@ encoder_concat_input_and_condition = True
 latent_dim = 128
 learning_rate = 0.001
 batch_size = 32
-test_size = 64
+test_size = 32
 save_test_set = True  # True  # True: the test set image IDs and other useful information will be stored in a
 # pickle file
 # to further uses (e.g. Image_Generation.ipynb)
@@ -60,6 +60,11 @@ elif pretrained_model in ["2022-07-30_14.36.29", "2022-08-07_01.14.16"]:
     encoder_concat_input_and_condition = True
     model_type = "ori"
     latent_dim = 128
+
+elif pretrained_model in ["2022-08-08_12.19.07"]: # best model archi + 256 latent dim
+    encoder_concat_input_and_condition = True
+    model_type = "ori"
+    latent_dim = 256
 
 if model_type == "ori":
     # ori model, attention
@@ -349,8 +354,6 @@ def plot_attr_manipulation_interpolation(target_attr="wear glasses", num_images=
 def plot_ori_images(save_folder=None, i=0):
     # Plot original Images
     print("\n Plot original images")
-    # batch_gen = batch_generator(test_data['batch_size'], test_data['test_img_ids'], model_name='Conv',
-    #                             celeba_path=celeba_path)
 
     f = plt.figure(figsize=(32, 40))
     ax = f.add_subplot(1, 2, 1)
@@ -399,21 +402,23 @@ if __name__ == "__main__":
     save_at = "./results/temp/"
     # save_at = result_folder <-- save to the model result folder
 
-    # plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3, save_folder=save_at)
-    # plot_image_with_attr(target_attr="wear glasses", image_embed_factor=0.5, save_folder=save_at)
+
+    plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3, save_folder=save_at)
+    plot_image_with_attr(target_attr="wear glasses", image_embed_factor=0.5, save_folder=save_at)
+    plot_image_with_attr(target_attr="smiling", image_embed_factor=0.5, save_folder=save_at)
     #
     # generate_image_given_text(target_attr="wearing glasses and turn left", save_folder=save_at)
     # generate_image_given_text(target_attr="smile", save_folder=save_at)
     # generate_image_given_text(target_attr=None, save_folder=save_at)
     #
     # plot_recon_images(epoch=00, save_folder=save_at)
-    plot_ori_images(save_folder=save_at, i=0)
-    # images, labels = next(batch_gen)
-    # plot_ori_images(save_folder=save_at, i=1)
-    # #images, labels = next(batch_gen)
+    #plot_ori_images(save_folder=save_at, i=1)
+    #images, labels = next(batch_gen)
     # plot_ori_images(save_folder=save_at, i=2)
-    # #images, labels = next(batch_gen)
+    # images, labels = next(batch_gen)
     # plot_ori_images(save_folder=save_at, i=3)
+    # images, labels = next(batch_gen)
+    # plot_ori_images(save_folder=save_at, i=4)
 
     print('model name = ', checkpoint_name)
     print('result folder = ', result_folder)
