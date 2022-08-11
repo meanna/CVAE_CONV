@@ -1,11 +1,12 @@
+import argparse
+import random
 from ast import literal_eval
 
 import clip
 import pandas as pd
 import torch
 from PIL import Image
-import random
-import argparse
+
 
 def generate_randint_list(size, total_imgs):
     '''generates a list of numbers with range of total images.
@@ -13,24 +14,24 @@ def generate_randint_list(size, total_imgs):
     @param total_imgs: total number of images in the dataset
     output: a list of numbers with leading zeros depending on total_imgs
     '''
-    
+
     rand_numlist = []
     total_zeros = len(str(total_imgs))
-    for i  in range(1, size):
+    for i in range(1, size):
         rand_numlist.append(random.randint(1, total_imgs))
-        
+
     return [str(n).zfill(total_zeros) for n in rand_numlist]
 
 
 def create_clip_embeddings(size=None):
     file_path = "./input/CelebA/list_attr_celeba.csv"
-    
+
     df = pd.read_csv(file_path)
-    
+
     if size:
-        #df = df[:size]
-        df = df.sample(n=size) #get random rows
-        
+        # df = df[:size]
+        df = df.sample(n=size)  # get random rows
+
     new_df = df['image_id']
     new_df = new_df.reset_index()  # make sure indexes pair with number of rows
 
@@ -87,6 +88,7 @@ def create_clip_embeddings(size=None):
     new_df.to_csv(out_file)
     print("out_file", out_file)
 
+
 # this is to check the result
 def load_embeddings():
     df = pd.read_csv("embeddings.csv", index_col=0,
@@ -98,7 +100,6 @@ def load_embeddings():
 
 
 if __name__ == "__main__":
-    
     parser = argparse.ArgumentParser()
     parser.add_argument("size", type=int, help="the total number images to embed")
     args = parser.parse_args()

@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 from image_generation_utils import attr_manipulation, image_generation, attr_manipulation_interpolation
 from utils import batch_generator, convert_batch_to_image_grid, read_data, train_step, \
     convert_batch_to_image_grid_interpolation
-from image_reconstruction_utils import image_reconstruction, interpolation
+from image_reconstruction_utils import image_reconstruction
 from datetime import datetime
 
 start_time_total = time.perf_counter()
@@ -24,7 +24,7 @@ print("run train....", run_train)
 
 # trained models :  "2022-07-30_14.36.29"
 # set to None if you want to train a new model
-pretrained_model = "2022-08-08_12.19.07"  # "2022-08-07_01.14.16"  # "model_test"  #2022-08-06_10.27.42"
+pretrained_model = "2022-08-08_12.19.07"
 checkpoint_path = None  # "./checkpoints/2022-07-30_14.36.29/model-5"
 
 # full dataset = "./embeddings.csv", "embeddings_128.csv", "embeddings_32.csv"
@@ -61,7 +61,7 @@ elif pretrained_model in ["2022-07-30_14.36.29", "2022-08-07_01.14.16"]:
     model_type = "ori"
     latent_dim = 128
 
-elif pretrained_model in ["2022-08-08_12.19.07"]: # best model archi + 256 latent dim
+elif pretrained_model in ["2022-08-08_12.19.07"]:  # best model archi + 256 latent dim
     encoder_concat_input_and_condition = True
     model_type = "ori"
     latent_dim = 256
@@ -94,7 +94,7 @@ print('Current Timestamp : ', timestamp_str)
 # Hyper-parameters
 label_dim = 512  # do not change this
 image_dim = [64, 64, 3]
-beta = 0.65  # suggested is 1
+beta = 1
 
 # Model
 encoder = Encoder(latent_dim, concat_input_and_condition=encoder_concat_input_and_condition)
@@ -136,8 +136,6 @@ if not os.path.exists(result_folder):
 # Define the checkpoint
 
 checkpoint = tf.train.Checkpoint(module=model)
-# manager = tf.train.CheckpointManager(checkpoint, checkpoint_root, max_to_keep=None)
-# print(manager.checkpoints)
 
 if checkpoint_path:
     checkpoint.restore(checkpoint_path).expect_partial()
@@ -260,37 +258,6 @@ def train():
 # ----------------------------------------------------------------------
 
 
-def plot_losses():
-    print("\n Plot losses ...")
-    f = plt.figure()
-    plt.plot(reconstruct_loss, 'g', marker='o')
-    plt.title("reconstruct_loss", fontsize=20, pad=10)
-    plt.grid()
-    plt.show()
-    save_path = os.path.join(result_folder, "reconstruct_loss.png")
-    plt.savefig(save_path, dpi=f.dpi)
-
-    f = plt.figure()
-    plt.plot(latent_loss, 'b', marker='o')
-    plt.grid()
-    plt.title("latent_loss", fontsize=20, pad=10)
-    plt.show()
-    save_path = os.path.join(result_folder, "latent_loss.png")
-    plt.savefig(save_path, dpi=f.dpi)
-
-    f = plt.figure()
-    plt.plot(loss, 'r', marker='o')
-    plt.grid()
-    plt.title("loss", fontsize=20, pad=10)
-    plt.show()
-    save_path = os.path.join(result_folder, "loss.png")
-    plt.savefig(save_path, dpi=f.dpi)
-    plt.close()
-
-
-# ----------------------------------------------------------------------
-
-
 def plot_image_with_attr(target_attr=None, image_embed_factor=0.5, save_folder=None):
     print("\n plot_image_with_attr ...")
 
@@ -374,27 +341,6 @@ def plot_ori_images(save_folder=None, i=0):
 
 
 # ----------------------------------------------------------------------
-def plot_interpolation():
-    """this need an adjustment to make it work"""
-    print("\n Plot Interpolation ...")
-    # Target images to interpolate
-    target_images = [2, 12, 14, 22, 28]
-
-    # Interpolation
-    interpolated_images = interpolation(target_images, images, labels, model)
-
-    # Plot resulting images
-    f = plt.figure(figsize=(32, 40))
-    ax = f.add_subplot(1, 2, 1)
-    ax.imshow(convert_batch_to_image_grid(np.asarray(interpolated_images)))
-    plt.axis('off')
-    plt.title('interpolated images', fontsize=20, pad=10)
-    save_path = os.path.join(result_folder, "interpolation.png")
-    plt.savefig(save_path, dpi=200, bbox_inches='tight')
-    plt.close()
-
-
-# ----------------------------------------------------------------------
 
 if __name__ == "__main__":
     if run_train:
@@ -402,23 +348,21 @@ if __name__ == "__main__":
     save_at = "./results/temp/"
     # save_at = result_folder <-- save to the model result folder
 
+    # image reconstruction
+    plot_recon_images(epoch=00, save_folder=save_at)
 
-    plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3, save_folder=save_at)
+    # save original image
+    plot_ori_images(save_folder=save_at, i=1)
+
+    # 1) text-to-image
+    generate_image_given_text(target_attr="wearing glasses and turn left", save_folder=save_at)
+    generate_image_given_text(target_attr="smile", save_folder=save_at)
+    # plot in spectrum
+    plot_attr_manipulation_interpolation(target_attr="wear glasses", num_images=3, save_folder=save_at)
+
+    # 2) image-to-image
+    plot_image_with_attr(target_attr=None, save_folder=save_at)
+
+    # 3) attribute manipulation
     plot_image_with_attr(target_attr="wear glasses", image_embed_factor=0.5, save_folder=save_at)
     plot_image_with_attr(target_attr="smiling", image_embed_factor=0.5, save_folder=save_at)
-    #
-    # generate_image_given_text(target_attr="wearing glasses and turn left", save_folder=save_at)
-    # generate_image_given_text(target_attr="smile", save_folder=save_at)
-    # generate_image_given_text(target_attr=None, save_folder=save_at)
-    #
-    # plot_recon_images(epoch=00, save_folder=save_at)
-    #plot_ori_images(save_folder=save_at, i=1)
-    #images, labels = next(batch_gen)
-    # plot_ori_images(save_folder=save_at, i=2)
-    # images, labels = next(batch_gen)
-    # plot_ori_images(save_folder=save_at, i=3)
-    # images, labels = next(batch_gen)
-    # plot_ori_images(save_folder=save_at, i=4)
-
-    print('model name = ', checkpoint_name)
-    print('result folder = ', result_folder)
