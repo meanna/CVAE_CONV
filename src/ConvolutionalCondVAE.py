@@ -195,7 +195,7 @@ class ConvCVAE(tf.keras.Model):
         self.label_dim = label_dim
         self.latent_dim = latent_dim
         self.batch_size = batch_size
-        self.beta = beta
+        self.beta = beta = 1
         self.image_dim = image_dim = [64, 64, 3]
 
     def __call__(self, inputs, is_train):
