@@ -24,7 +24,7 @@ print("run train....", run_train)
 
 # trained models :  "2022-07-30_14.36.29"
 # set to None if you want to train a new model
-pretrained_model = "2022-08-08_12.19.07"
+pretrained_model = "2022-08-07_01.14.16"#"2022-07-30_14.36.29"# "2022-08-08_12.19.07"
 checkpoint_path = None  # "./checkpoints/2022-07-30_14.36.29/model-5"
 
 # full dataset = "./embeddings.csv", "embeddings_128.csv", "embeddings_32.csv"
@@ -65,6 +65,7 @@ elif pretrained_model in ["2022-08-08_12.19.07"]:  # best model archi + 256 late
     encoder_concat_input_and_condition = True
     model_type = "ori"
     latent_dim = 256
+    batch_size = 32
 
 if model_type == "ori":
     # ori model, attention
@@ -350,19 +351,21 @@ if __name__ == "__main__":
 
     # image reconstruction
     plot_recon_images(epoch=00, save_folder=save_at)
-
-    # save original image
+    #
+    # # save original image
     plot_ori_images(save_folder=save_at, i=1)
-
-    # 1) text-to-image
+    #
+    # # 1) text-to-image
     generate_image_given_text(target_attr="wearing glasses and turn left", save_folder=save_at)
     generate_image_given_text(target_attr="smile", save_folder=save_at)
-    # plot in spectrum
-    plot_attr_manipulation_interpolation(target_attr="wear glasses", num_images=3, save_folder=save_at)
+    # # plot in spectrum
+
 
     # 2) image-to-image
-    plot_image_with_attr(target_attr=None, save_folder=save_at)
+    generate_image_given_text(target_attr="smile", save_folder=save_at)
 
     # 3) attribute manipulation
-    plot_image_with_attr(target_attr="wear glasses", image_embed_factor=0.5, save_folder=save_at)
-    plot_image_with_attr(target_attr="smiling", image_embed_factor=0.5, save_folder=save_at)
+    plot_image_with_attr(target_attr="wearing glasses", image_embed_factor=0.5, save_folder=save_at)
+
+
+
