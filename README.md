@@ -2,6 +2,7 @@
 
 - based on https://github.com/EleMisi/ConditionalVAE
 - Authors: Suteera Seeha & Leah Michel
+- [report](https://drive.google.com/file/d/1YONwgfyIqWmJ1A1DnNzwxXJeP8gkBckC/view?usp=sharing)
 ### Abstract
 
 In this project, we investigate how CLIP image embeddings can be used with Conditional Variational Autoencoders (CVAEs)
