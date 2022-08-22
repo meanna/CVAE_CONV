@@ -1,6 +1,22 @@
 # Conditional VAE + CLIP for text to image generation
 
-based on https://github.com/EleMisi/ConditionalVAE
+- based on https://github.com/EleMisi/ConditionalVAE
+- Authors: Suteera Seeha & Leah Michel
+### Abstract
+
+In this project, we investigate how CLIP image embeddings can be used with Conditional Variational Autoencoders (CVAEs)
+for text-to-image generation. In general, text-to-image generation systems require image and text caption pairs as
+input for training. However, datasets with such labels do not exist for every domain and are expensive to obtain. As a
+substitute for the text labels, we use CLIP to extract important features of the images in the form of image
+embeddings. We use these embeddings as a condition for training a CVAE. At inference time, to perform text-to-image
+generation, a target caption is encoded as CLIP text embeddings. The embeddings are then used as a condition in the
+reparameterization step and further fed to the model's encoder to generate the corresponding image.
+
+The results on CelebA dataset show that our model is able to perform text-to-image generation even when not trained on
+caption labels, suggesting that CLIP image embeddings can encode the semantics of images. In our analysis, we
+investigate what information is preserved or lost in CLIP embeddings. We also propose a method for manipulating images
+through a text prompt such as “wearing glasses” that puts a pair of glasses on a given face. We release our codes at
+[CVAE-Conv](https://github.com/meanna/conditional_VAE) and [CVAE-VGG19](https://github.com/meanna/conditional_VAE).
 
 ## colab
 
@@ -75,7 +91,6 @@ based on https://github.com/EleMisi/ConditionalVAE
 
 ![](src/results/result_2022-07-30_14.36.29/reconstruction.png)
 
-
 - `plot_ori_images()` : plot original test images
 
 - `generate_image_given_text(target_attr="wear reading glasses and smile")`: generate image given a text prompt
@@ -85,28 +100,21 @@ based on https://github.com/EleMisi/ConditionalVAE
 ![](src/results/result_2022-08-07_01.14.16/generation_wearing_glasses.png)| ![](src/results/result_2022-08-07_01.14.16/generation_smile.png)
 ![](src/results/result_2022-08-07_01.14.16/generation_a_person_with_blue_hair.png)| ![](src/results/result_2022-08-07_01.14.16/generation_wearing_glasses_and_turn_left.png)
 
-
-
 - `generate_image_given_text(target_attr=None)`: generate image (condition are the image embeddings from test set)
-  
 
 | original            |  example |
 :-------------------------:|:-------------------------:
 ![](src/results/result_2022-07-30_14.36.29/ori_images.png) | ![](src/results/result_2022-07-30_14.36.29/generation_no_attribute_given.png)
 
-
-
 - `plot_image_with_attr(target_attr="angry", image_embed_factor=0.6)`: attribute manipulation
-  
+
 ![](src/results/result_2022-08-07_01.14.16/modified_images_angry_0.5.png)
 ![](src/results/result_2022-07-30_14.36.29/modified_images_wear_glasses_0.5.png)
-
 
 - `plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3)`: attribute manipulation interpolation
   for 3 images
     - if num_images is None, interpolation plot for 32 images will be created (you probably may not want to run it
       because it will take a long time)
-
 
 | example            |  example |
 :-------------------------:|:-------------------------:
@@ -114,7 +122,6 @@ based on https://github.com/EleMisi/ConditionalVAE
 ![](src/results/result_examples/modified_images_laughing_0.png)|  ![](src/results/result_examples/modified_images_frowning_1.png)
 ![](src/results/result_examples/modified_images_wear_glasses_1.png) |  ![](src/results/result_examples/modified_images_shocked_0.png)
 ![](src/results/result_examples/modified_images_angry_1.png)  | ![](src/results/result_examples/modified_images_shocked_2.png)
-
 
 ## etc
 
