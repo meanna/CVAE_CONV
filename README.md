@@ -59,8 +59,8 @@ based on https://github.com/EleMisi/ConditionalVAE
 - set `run_train = True`
     - the model will be saved in `checkpoints` folder
 
-
 ## image generation
+
 - go to `src/train.py`
 - set `pretrained_model = "2022-07-30_14.36.29"` (or another checkpoint)
 - set `run_train = False`
@@ -70,15 +70,50 @@ based on https://github.com/EleMisi/ConditionalVAE
 - set `save_at = result_folder` (save images to the model result folder)
 
 ### functions to generate images
+
 - `plot_recon_images()` : plot reconstruction on the test batch
+
+![](src/results/result_2022-07-30_14.36.29/reconstruction.png)
+
+
 - `plot_ori_images()` : plot original test images
+
 - `generate_image_given_text(target_attr="wear reading glasses and smile")`: generate image given a text prompt
+
+| example            |  example |
+:-------------------------:|:-------------------------:
+![](src/results/result_2022-08-07_01.14.16/generation_wearing_glasses.png)| ![](src/results/result_2022-08-07_01.14.16/generation_smile.png)
+![](src/results/result_2022-08-07_01.14.16/generation_a_person_with_blue_hair.png)| ![](src/results/result_2022-08-07_01.14.16/generation_wearing_glasses_and_turn_left.png)
+
+
+
 - `generate_image_given_text(target_attr=None)`: generate image (condition are the image embeddings from test set)
+  
+
+| original            |  example |
+:-------------------------:|:-------------------------:
+![](src/results/result_2022-07-30_14.36.29/ori_images.png) | ![](src/results/result_2022-07-30_14.36.29/generation_no_attribute_given.png)
+
+
+
 - `plot_image_with_attr(target_attr="angry", image_embed_factor=0.6)`: attribute manipulation
-- `plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3)`: attribute manipulation interpolation for 3 images
-  - if num_images is None, interpolation plot for 32 images will be created (you probably may not want to run it because it will take a long time)
+  
+![](src/results/result_2022-08-07_01.14.16/modified_images_angry_0.5.png)
+![](src/results/result_2022-07-30_14.36.29/modified_images_wear_glasses_0.5.png)
 
 
+- `plot_attr_manipulation_interpolation(target_attr="wear glasses",num_images=3)`: attribute manipulation interpolation
+  for 3 images
+    - if num_images is None, interpolation plot for 32 images will be created (you probably may not want to run it
+      because it will take a long time)
+
+
+| example            |  example |
+:-------------------------:|:-------------------------:
+![](src/results/result_2022-07-30_14.36.29/modified_images_wear_glasses_2.png)|  ![](src/results/result_2022-07-30_14.36.29/modified_images_wear_glasses_1.png)
+![](src/results/result_examples/modified_images_laughing_0.png)|  ![](src/results/result_examples/modified_images_frowning_1.png)
+![](src/results/result_examples/modified_images_wear_glasses_1.png) |  ![](src/results/result_examples/modified_images_shocked_0.png)
+![](src/results/result_examples/modified_images_angry_1.png)  | ![](src/results/result_examples/modified_images_shocked_2.png)
 
 
 ## etc
@@ -93,24 +128,24 @@ based on https://github.com/EleMisi/ConditionalVAE
 ### VAE (conditional VAE 1)
 
 - encoder:
-  - block1: Conv2D, BatchNormalization, Leaky Relu
-  - block2: Conv2D, BatchNormalization, Leaky Relu
-  - block3: Conv2D, BatchNormalization, Leaky Relu
-  - block4: Conv2D, BatchNormalization, Leaky Relu
-  - flatten -> dense
-  - output: mean, log variance
+    - block1: Conv2D, BatchNormalization, Leaky Relu
+    - block2: Conv2D, BatchNormalization, Leaky Relu
+    - block3: Conv2D, BatchNormalization, Leaky Relu
+    - block4: Conv2D, BatchNormalization, Leaky Relu
+    - flatten -> dense
+    - output: mean, log variance
 - re-parametrization:
-  - takes mean, log variance and output z (latent space)
-  - z concatenated with the condition -> output 
+    - takes mean, log variance and output z (latent space)
+    - z concatenated with the condition -> output
 - decoder:
-  - take z + condition
-  - dense -> Leaky Relu
-  - block1: Conv2DTranspose, BatchNormalization, Leaky Relu
-  - block2: Conv2DTranspose, BatchNormalization, Leaky Relu
-  - block3: Conv2DTranspose, BatchNormalization, Leaky Relu
-  - block4: Conv2DTranspose, BatchNormalization, Leaky Relu
-  - block4: Conv2DTranspose -> sigmoid
-  - output: image batch (batch,64,64,3)
+    - take z + condition
+    - dense -> Leaky Relu
+    - block1: Conv2DTranspose, BatchNormalization, Leaky Relu
+    - block2: Conv2DTranspose, BatchNormalization, Leaky Relu
+    - block3: Conv2DTranspose, BatchNormalization, Leaky Relu
+    - block4: Conv2DTranspose, BatchNormalization, Leaky Relu
+    - block4: Conv2DTranspose -> sigmoid
+    - output: image batch (batch,64,64,3)
 
 ### loss
 
@@ -129,8 +164,8 @@ based on https://github.com/EleMisi/ConditionalVAE
     - ConvolutionalCondVAE.py
     - good result
     - this is the best architecture
-- **conditional VAE 2**: input to the encoder is the image tensor, the condition is added as additional channel in the last
-  of the encoder (after block 4, before dense, when the tensor size is 4 x 4)
+- **conditional VAE 2**: input to the encoder is the image tensor, the condition is added as additional channel in the
+  last of the encoder (after block 4, before dense, when the tensor size is 4 x 4)
     - ConvolutionalCondVAE.py
     - result is similar to conditional VAE 1
 - **conditional VAE 1 + attention layers**
@@ -184,15 +219,15 @@ based on https://github.com/EleMisi/ConditionalVAE
     - or `gdown https://drive.google.com/uc?id=10dsnOvlziCFm10QdwBjFW0OzNm_YnoRs`
 
 - 2022-08-08_12.19.07
-  - model: conditional VAE 1 (increase latent dim to 256)
-  - result: ....
-  - epoch: 25
-  - params
-      - batch_size = 32
-      - latent_dim = **256**
-  - time: 363 min
-  - [download zip](https://drive.google.com/file/d/1mo7j57tcTI9TNPAuo_F2yIED2-jQQZsF/view?usp=sharing)
-  - or `gdown https://drive.google.com/uc?id=1mo7j57tcTI9TNPAuo_F2yIED2-jQQZsF`
+    - model: conditional VAE 1 (increase latent dim to 256)
+    - result: ....
+    - epoch: 25
+    - params
+        - batch_size = 32
+        - latent_dim = **256**
+    - time: 363 min
+    - [download zip](https://drive.google.com/file/d/1mo7j57tcTI9TNPAuo_F2yIED2-jQQZsF/view?usp=sharing)
+    - or `gdown https://drive.google.com/uc?id=1mo7j57tcTI9TNPAuo_F2yIED2-jQQZsF`
 
 ### How to load the pre-trained model
 
