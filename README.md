@@ -17,7 +17,7 @@ The results on CelebA dataset show that our model is able to perform text-to-ima
 caption labels, suggesting that CLIP image embeddings can encode the semantics of images. In our analysis, we
 investigate what information is preserved or lost in CLIP embeddings. We also propose a method for manipulating images
 through a text prompt such as “wearing glasses” that puts a pair of glasses on a given face. We release our codes at
-[CVAE-Conv](https://github.com/meanna/conditional_VAE) and [CVAE-VGG19](https://github.com/meanna/conditional_VAE).
+[CVAE-Conv](https://github.com/meanna/conditional_VAE) and [CVAE-VGG19](https://github.com/meanna/CVAE_VGG19).
 
 ## colab
 
